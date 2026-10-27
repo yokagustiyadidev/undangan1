@@ -1,0 +1,3032 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Undangan Pernikahan Taman 3D — Mr Pengantin &amp; Mrs Pengantin</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    :root {
+      /* Romantic Sunset Dusk & Deep Botanical Emerald Palette */
+      --sky-top: #3d2235;
+      --sky-mid: #6e3850;
+      --sky-low: #b55d5c;
+      --sky-horizon: #d98a6c;
+      --garden-green: #1b4332;
+      --rose-accent: #d94b68;
+      --gold: #d49b27;
+      --deep-ink: #2b141d;
+      --pill-bg: rgba(24, 52, 38, 0.86);
+      --pill-border: rgba(244, 196, 78, 0.68);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 38%, var(--sky-low) 72%, var(--sky-horizon) 100%);
+      background-attachment: fixed;
+      color: #fffdf9;
+      overflow-x: hidden;
+    }
+
+    body.locked {
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* Fixed 3D Stage */
+    #stage {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    #scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: auto;
+      touch-action: pan-y;
+      cursor: grab;
+    }
+
+    #scene:active {
+      cursor: grabbing;
+    }
+
+    /* Scroll track driving the winding garden camera */
+    #track {
+      height: 940vh;
+      position: relative;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .fade-ui {
+      transition: opacity 0.45s ease, transform 0.45s ease, visibility 0.45s;
+    }
+
+    body.scrolled .fade-ui {
+      opacity: 0 !important;
+      visibility: hidden;
+      pointer-events: none !important;
+      transform: translateY(-10px);
+    }
+
+    /* Top Bar */
+    .topbar {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      pointer-events: auto;
+    }
+
+    .badge {
+      background: var(--pill-bg);
+      border: 1.5px solid var(--pill-border);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 7px 15px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff3d1;
+      box-shadow: 0 8px 24px rgba(30, 55, 38, 0.25);
+    }
+
+    .guest-edit-btn {
+      background: rgba(255, 248, 235, 0.88);
+      border: 1.5px solid #d49b27;
+      color: #3d1e28;
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease;
+      box-shadow: 0 6px 18px rgba(61, 30, 40, 0.15);
+    }
+
+    .guest-edit-btn:hover {
+      background: #fffdf9;
+      transform: translateY(-1px);
+    }
+
+    .hint {
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #fff5e4;
+      text-align: right;
+      text-shadow: 0 2px 10px rgba(25, 10, 18, 0.85);
+    }
+
+    @media (max-width: 640px) {
+      .hint {
+        display: none;
+      }
+    }
+
+    /* Floating Text-Only Prompt (No Box!) */
+    .prompt {
+      position: fixed;
+      bottom: 84px;
+      left: 16px;
+      right: 16px;
+      text-align: center;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    body.opened .prompt {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+    }
+
+    .prompt .big {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(1.25rem, 3.2vw, 1.65rem);
+      font-weight: 800;
+      color: #fffdf9;
+      margin: 0 0 4px;
+      text-shadow: 0 3px 14px rgba(25, 10, 18, 0.85), 0 1px 3px rgba(0, 0, 0, 0.65);
+    }
+
+    .prompt .small {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffe8a3;
+      margin: 0;
+      text-shadow: 0 2px 10px rgba(25, 10, 18, 0.85);
+    }
+
+    /* Subtle Scroll Hint after opening envelope (Does NOT overlap the 3D Letter!) */
+    .names {
+      position: fixed;
+      bottom: 72px;
+      left: 16px;
+      right: 16px;
+      text-align: center;
+      z-index: 15;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+    }
+
+    body.opened:not(.scrolled) .names {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .names .sub {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #ffe8a3;
+      margin: 0;
+      text-shadow: 0 2px 12px rgba(20, 8, 14, 0.95), 0 0 6px rgba(0, 0, 0, 0.85);
+    }
+
+    /* Zoom Cluster */
+    .zoomcluster {
+      position: fixed;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .zbtn {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      border: 1.5px solid var(--pill-border);
+      color: #fff5d6;
+      font-size: 20px;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      pointer-events: auto;
+      box-shadow: 0 8px 20px rgba(25, 48, 34, 0.3);
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    .zbtn:hover {
+      background: rgba(58, 102, 74, 0.92);
+      transform: scale(1.06);
+    }
+
+    /* Bottom Hero Controls */
+    .controls {
+      position: fixed;
+      bottom: 18px;
+      left: 12px;
+      right: 12px;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .btn {
+      pointer-events: auto;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      background: var(--pill-bg);
+      border: 1.5px solid var(--pill-border);
+      color: #fff8eb;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(28, 52, 38, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      background: rgba(58, 102, 74, 0.92);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #e05370 0%, #b8324f 100%);
+      border-color: #ffe3a3;
+      color: #ffffff;
+      box-shadow: 0 10px 26px rgba(184, 50, 79, 0.45);
+    }
+
+    .btn.cat-btn {
+      background: linear-gradient(135deg, #f4a236 0%, #d97218 100%);
+      border-color: #fff2bd;
+      color: #2b141d;
+      box-shadow: 0 10px 24px rgba(217, 114, 24, 0.42);
+    }
+
+    /* Minimalist Stop Navigation Pill while scrolling */
+    #journeyHud {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: var(--pill-bg);
+      border: 1.5px solid var(--pill-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 6px 10px;
+      border-radius: 999px;
+      box-shadow: 0 12px 28px rgba(25, 48, 34, 0.38);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: all 0.35s ease;
+      width: max-content;
+      max-width: 96vw;
+    }
+
+    body.scrolled:not(.rsvp-on) #journeyHud {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .hud-btn {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 235, 190, 0.4);
+      color: #fffdf9;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .hud-btn:hover {
+      background: rgba(212, 155, 39, 0.45);
+    }
+
+    .hud-btn.cat-action {
+      background: linear-gradient(135deg, #f4b942 0%, #e08e26 100%);
+      color: #2b141d;
+      border-color: #fff5d6;
+    }
+
+    .hud-pill {
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #ffe8a3;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+      }
+      .badge {
+        font-size: 10px;
+        padding: 5px 11px;
+      }
+      .guest-edit-btn {
+        font-size: 10px;
+        padding: 5px 10px;
+      }
+      .controls {
+        bottom: 12px;
+        gap: 6px;
+      }
+      .btn {
+        padding: 9px 13px;
+        font-size: 11px;
+      }
+      .prompt {
+        bottom: 74px;
+      }
+      .names {
+        bottom: 64px;
+      }
+      .zoomcluster {
+        right: 10px;
+      }
+      .zbtn {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+      }
+      #journeyHud {
+        padding: 5px 8px;
+        gap: 4px;
+      }
+      .hud-btn {
+        padding: 5px 9px;
+        font-size: 10px;
+      }
+      .hud-pill {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
+    }
+
+    /* RSVP Bar at Stop 7 */
+    #rsvpBar {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(24px);
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--pill-bg);
+      border: 2px solid #f4c44e;
+      backdrop-filter: blur(14px);
+      padding: 7px 10px;
+      border-radius: 999px;
+      box-shadow: 0 16px 36px rgba(25, 48, 34, 0.48);
+      width: min(92vw, 480px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.rsvp-on #rsvpBar {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #rsvpBar input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: rgba(255, 252, 245, 0.95);
+      color: #3d1e28;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 999px;
+    }
+
+    #rsvpBar button {
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f4c44e 0%, #d49b27 100%);
+      color: #3d1e28;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      top: 68px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      z-index: 50;
+      background: rgba(45, 76, 57, 0.94);
+      border: 1.5px solid #f4c44e;
+      color: #fff4c7;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 12px 28px rgba(20, 40, 28, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      text-align: center;
+      max-width: 90vw;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Guest Name Editor Modal */
+    #guestModal {
+      position: fixed;
+      inset: 0;
+      z-index: 48;
+      background: rgba(30, 50, 38, 0.65);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.25s ease, visibility 0.25s;
+    }
+
+    #guestModal.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #fffcf5;
+      border: 2px solid #d49b27;
+      border-radius: 24px;
+      padding: 22px;
+      width: min(92vw, 380px);
+      color: #3d1e28;
+      box-shadow: 0 20px 50px rgba(25, 45, 32, 0.45);
+      text-align: center;
+    }
+
+    /* Lightbox for 3D Gallery Frames */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 45;
+      background: rgba(28, 48, 36, 0.82);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s;
+    }
+
+    #lightbox.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #lightbox .frame {
+      position: relative;
+      background: #fffcf5;
+      border: 2px solid #d49b27;
+      border-radius: 24px;
+      padding: 16px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(20, 38, 28, 0.55);
+    }
+
+    #lbImg {
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      border: 2px solid rgba(212, 155, 39, 0.5);
+      display: block;
+    }
+
+    #lbCap {
+      font-family: "Playfair Display", serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #3d1e28;
+      margin-top: 12px;
+    }
+
+    #lightbox .close,
+    #lightbox .nav {
+      position: absolute;
+      background: rgba(45, 76, 57, 0.92);
+      border: 1.5px solid #f4c44e;
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+
+    #lightbox .close {
+      top: 10px;
+      right: 10px;
+    }
+
+    #lightbox .nav.prev {
+      left: 24px;
+      top: 45%;
+    }
+
+    #lightbox .nav.next {
+      right: 24px;
+      top: 45%;
+    }
+  </style>
+</head>
+<body class="locked">
+
+  <div id="stage">
+    <canvas id="scene" aria-label="Undangan Pernikahan Taman Bunga 3D"></canvas>
+
+    <div class="topbar fade-ui">
+      <div class="badge-group">
+        <div class="badge">🌸 Taman Pernikahan 3D • Raka &amp; Nisa</div>
+        <button type="button" class="guest-edit-btn" id="openGuestModalBtn">✎ Ubah Nama Tamu di Surat</button>
+      </div>
+      <div class="hint">
+        Seret untuk putar • Cubit / scroll untuk zoom<br>
+        Ketuk amplop untuk mengeluarkan Kertas Surat Undangan
+      </div>
+    </div>
+
+    <div class="names fade-ui" id="names">
+      <p class="sub">✨ Scroll ke Bawah untuk Menyusuri Jalan Taman Bunga Bersama Kucing 3D ↓ ✨</p>
+    </div>
+
+    <div class="prompt fade-ui" id="prompt">
+      <p class="big">✨ Sebuah Surat Undangan Untukmu ✨</p>
+      <p class="small">Ketuk amplop di tengah taman untuk mengeluarkan kertas surat undangan</p>
+    </div>
+
+    <div class="zoomcluster fade-ui" aria-label="Kontrol zoom">
+      <button class="zbtn" id="zoomIn" type="button" aria-label="Perbesar">+</button>
+      <button class="zbtn" id="zoomOut" type="button" aria-label="Perkecil">−</button>
+    </div>
+
+    <div class="controls fade-ui">
+      <button class="btn primary" id="toggleBtn" type="button">✉ Buka Surat Undangan</button>
+      <button class="btn cat-btn" id="heroCatTrickBtn" type="button">🐾 Ajak Main Kucing</button>
+      <button class="btn" id="spinBtn" type="button" aria-pressed="false">↻ Putar Otomatis</button>
+      <button class="btn" id="startJourneyBtn" type="button">🌸 Masuk ke Taman Bunga ↓</button>
+    </div>
+
+    <!-- Compact Stop Navigation Bar while scrolling -->
+    <div id="journeyHud" aria-label="Navigasi Pos Taman 3D">
+      <button type="button" class="hud-btn" id="prevStopBtn">← Mundur</button>
+      <span class="hud-pill" id="hudStopLabel">Pos 1 / 7 • Pelaminan Taman</span>
+      <button type="button" class="hud-btn" id="nextStopBtn">Maju →</button>
+      <button type="button" class="hud-btn cat-action" id="hudCatTrickBtn">🐾 Ajak Main Kucing</button>
+    </div>
+
+    <!-- RSVP Form at Final Stop -->
+    <form id="rsvpBar" autocomplete="off">
+      <input id="rsvpName" type="text" maxlength="42" placeholder="Tulis nama &amp; doa restu Anda..." required />
+      <button type="submit">Kirim Doa 3D</button>
+    </form>
+
+    <!-- Toast Notification -->
+    <div id="toast" role="status" aria-live="polite">Tersalin!</div>
+
+    <!-- Modal to Edit Guest Name on the 3D Letter -->
+    <div id="guestModal" role="dialog" aria-modal="true" aria-label="Ubah Nama Tamu Undangan">
+      <form class="modal-box" id="guestForm">
+        <h3 class="font-serif text-xl font-bold mb-1">Nama Tamu pada Kertas Surat</h3>
+        <p class="text-xs text-stone-600 mb-3">Anda juga bisa menggunakan parameter URL <code>?to=Nama+Tamu</code></p>
+        <input id="guestInput" type="text" maxlength="38" class="w-full px-4 py-2.5 rounded-full border border-amber-400 text-sm font-bold mb-3 focus:outline-none" placeholder="Contoh: Budi Santoso &amp; Partner" required />
+        <div class="flex justify-center gap-2">
+          <button type="button" id="cancelGuestBtn" class="px-4 py-2 rounded-full text-xs font-bold bg-stone-200 text-stone-700">Batal</button>
+          <button type="submit" class="px-5 py-2 rounded-full text-xs font-bold bg-amber-500 text-stone-900">Terapkan di Surat 3D</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Lightbox for 3D Gallery Frames -->
+    <div id="lightbox" role="dialog" aria-modal="true" aria-label="Pratinjau foto galeri 3D">
+      <div class="frame">
+        <button class="close" id="lbClose" type="button" aria-label="Tutup">✕</button>
+        <button class="nav prev" id="lbPrev" type="button" aria-label="Foto sebelumnya">‹</button>
+        <img id="lbImg" alt="Foto galeri pernikahan" src="https://placehold.co/600x400/e07a5f/fffdf9?text=Galeri+Taman+3D" />
+        <button class="nav next" id="lbNext" type="button" aria-label="Foto berikutnya">›</button>
+        <div class="cap" id="lbCap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll Driver Track -->
+  <div id="track" aria-hidden="true"></div>
+
+  <script>
+    window.addEventListener('load', function () {
+      if (typeof THREE === 'undefined') return;
+
+      /* =========================================================
+       * 0. DEVICE DETECTION (MOBILE 60FPS OPTIMIZATION) & GUEST NAME
+       * ========================================================= */
+      const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      const urlParams = new URLSearchParams(window.location.search);
+      let guestName = (urlParams.get('to') || urlParams.get('tamu') || urlParams.get('guest') || '').trim();
+      if (!guestName) {
+        guestName = 'Sahabat & Kerabat Terkasih';
+      }
+
+      /* =========================================================
+       * 0B. WEB AUDIO API SYNTHESIZER ("MEOW~" & MAGICAL CHIME)
+       * ========================================================= */
+      let audioCtx = null;
+      function getAudioContext() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function playCatMeowSound(variant = 0) {
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+
+          // Main Meow formant glide
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+
+          const startFreq = variant === 0 ? 520 : (variant === 1 ? 610 : 480);
+          const peakFreq = variant === 0 ? 880 : (variant === 1 ? 980 : 790);
+          const endFreq = variant === 0 ? 410 : (variant === 1 ? 510 : 380);
+
+          osc.frequency.setValueAtTime(startFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(peakFreq, now + 0.11);
+          osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.36);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.18, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.4);
+
+          // Cute collar bell sparkle chime
+          const bellOsc = ctx.createOscillator();
+          const bellGain = ctx.createGain();
+          bellOsc.type = 'sine';
+          bellOsc.frequency.setValueAtTime(1760, now + 0.08);
+          bellOsc.frequency.exponentialRampToValueAtTime(2349, now + 0.24);
+
+          bellGain.gain.setValueAtTime(0.001, now + 0.08);
+          bellGain.gain.linearRampToValueAtTime(0.09, now + 0.1);
+          bellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+          bellOsc.connect(bellGain);
+          bellGain.connect(ctx.destination);
+          bellOsc.start(now + 0.08);
+          bellOsc.stop(now + 0.34);
+        } catch (err) {
+          // Ignore audio restrictions if not yet interacted
+        }
+      }
+
+      /* =========================================================
+       * 1. SCENE, CAMERA, RENDERER & BOTANICAL GARDEN SKY
+       * ========================================================= */
+      const canvas = document.getElementById('scene');
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: !isMobile,
+        alpha: true,
+        powerPreference: 'high-performance'
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.75));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      // Real-time shadows only on desktop; mobile uses baked soft contact shadows for 60FPS
+      renderer.shadowMap.enabled = !isMobile;
+      if (!isMobile) {
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      }
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.92;
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x6e3850, 0.0082);
+
+      const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 210);
+
+      // Warm Cream Sky + Warm Wood-Brown Ground Bounce (NO green bounce on human skin!)
+      const hemiLight = new THREE.HemisphereLight(0xffe8d6, 0x6b4438, 0.88);
+      scene.add(hemiLight);
+
+      const sunLight = new THREE.DirectionalLight(0xffdfba, 1.05);
+      sunLight.position.set(18, 32, 24);
+      sunLight.castShadow = !isMobile;
+      if (!isMobile) {
+        sunLight.shadow.mapSize.set(1024, 1024);
+        sunLight.shadow.camera.near = 1;
+        sunLight.shadow.camera.far = 160;
+        const d = 42;
+        sunLight.shadow.camera.left = -d;
+        sunLight.shadow.camera.right = d;
+        sunLight.shadow.camera.top = d;
+        sunLight.shadow.camera.bottom = -d;
+      }
+      scene.add(sunLight);
+
+      /* =========================================================
+       * 2. CANVAS TEXTURE, SOFT CONTACT SHADOW & FLOATING TEXT
+       * ========================================================= */
+      function makeTexture(drawFn, w = 1024, h = 512) {
+        const scale = isMobile ? 0.75 : 1.0;
+        const cw = Math.max(256, Math.round(w * scale));
+        const ch = Math.max(128, Math.round(h * scale));
+        const c = document.createElement('canvas');
+        c.width = cw;
+        c.height = ch;
+        const ctx = c.getContext('2d');
+        ctx.save();
+        ctx.scale(cw / w, ch / h);
+        drawFn(ctx, w, h);
+        ctx.restore();
+        const tex = new THREE.CanvasTexture(c);
+        tex.encoding = THREE.sRGBEncoding;
+        tex.anisotropy = isMobile ? 1 : 4;
+        return tex;
+      }
+
+      // Shared Baked Soft Contact Shadow for 60FPS Mobile Realism
+      const contactShadowTex = makeTexture((ctx, w, h) => {
+        const grad = ctx.createRadialGradient(w / 2, h / 2, w * 0.05, w / 2, h / 2, w * 0.48);
+        grad.addColorStop(0, 'rgba(15, 28, 20, 0.55)');
+        grad.addColorStop(0.55, 'rgba(15, 28, 20, 0.22)');
+        grad.addColorStop(1, 'rgba(15, 28, 20, 0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+      }, 256, 256);
+
+      const contactShadowGeo = new THREE.PlaneGeometry(1, 1);
+      contactShadowGeo.rotateX(-Math.PI / 2);
+      const contactShadowMat = new THREE.MeshBasicMaterial({
+        map: contactShadowTex,
+        transparent: true,
+        depthWrite: false
+      });
+
+      function createContactShadow(radius = 1.2, yOffset = 0.02) {
+        const mesh = new THREE.Mesh(contactShadowGeo, contactShadowMat);
+        mesh.scale.set(radius * 2, 1, radius * 2);
+        mesh.position.y = yOffset;
+        return mesh;
+      }
+
+      // Helper to draw ornamental flourish divider (without any rectangular box)
+      function drawFlourishDivider(ctx, cx, y, width, color = '#ffd97d') {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 3.5;
+
+        ctx.beginPath();
+        ctx.moveTo(cx - width / 2, y);
+        ctx.quadraticCurveTo(cx - width / 4, y - 8, cx - 26, y);
+        ctx.moveTo(cx + 26, y);
+        ctx.quadraticCurveTo(cx + width / 4, y - 8, cx + width / 2, y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx, y - 11);
+        ctx.lineTo(cx + 13, y);
+        ctx.lineTo(cx, y + 11);
+        ctx.lineTo(cx - 13, y);
+        ctx.closePath();
+        ctx.fill();
+
+        [-width / 2 - 10, width / 2 + 10].forEach((dx) => {
+          ctx.beginPath();
+          ctx.arc(cx + dx, y, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      }
+
+      // Helper to render crisp floating text with strong botanical halo so it needs NO box
+      function drawFloatingLine(ctx, text, x, y, font, fill = '#fffdf7', stroke = 'rgba(52, 20, 32, 0.92)', strokeWidth = 11) {
+        ctx.save();
+        ctx.font = font;
+        ctx.textAlign = 'center';
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+
+        ctx.shadowColor = 'rgba(38, 14, 24, 0.72)';
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 5;
+
+        if (strokeWidth > 0) {
+          ctx.strokeStyle = stroke;
+          ctx.lineWidth = strokeWidth;
+          ctx.strokeText(text, x, y);
+        }
+
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.fillStyle = fill;
+        ctx.fillText(text, x, y);
+        ctx.restore();
+      }
+
+      // Creates a 100% transparent Floating Text-Only Plane
+      function createFloatingTextPlane(drawFn, width = 7.4, height = 3.7, texW = 1400, texH = 700) {
+        const tex = makeTexture((ctx, w, h) => {
+          ctx.clearRect(0, 0, w, h);
+          drawFn(ctx, w, h);
+        }, texW, texH);
+
+        const mat = new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          alphaTest: 0.01,
+          depthWrite: false,
+          side: THREE.DoubleSide
+        });
+
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), mat);
+        return { mesh, tex, logicalW: texW, logicalH: texH };
+      }
+
+      /* =========================================================
+       * 3. 3D CHARACTERS: KUCING 3D INTERAKTIF, MEMPELAI 3D & KUPU-KUPU
+       * ========================================================= */
+      const animatedCats = [];
+      const animatedCouples = [];
+      const animatedButterflies = [];
+      const floatingHearts = [];
+      const clickableObjects = [];
+
+      const sharedHeartShape = new THREE.Shape();
+      sharedHeartShape.moveTo(0, 0.12);
+      sharedHeartShape.bezierCurveTo(0, 0.22, -0.18, 0.22, -0.18, 0.08);
+      sharedHeartShape.bezierCurveTo(-0.18, -0.05, 0, -0.12, 0, -0.22);
+      sharedHeartShape.bezierCurveTo(0, -0.12, 0.18, -0.05, 0.18, 0.08);
+      sharedHeartShape.bezierCurveTo(0.18, 0.22, 0, 0.22, 0, 0.12);
+      const sharedHeartGeo = new THREE.ShapeGeometry(sharedHeartShape);
+
+      function spawnHeartBurst(worldPos, count = 8) {
+        const actualCount = isMobile ? Math.min(6, count) : count;
+        for (let i = 0; i < actualCount; i++) {
+          const mat = new THREE.MeshBasicMaterial({
+            color: i % 2 === 0 ? 0xff4d6d : 0xffd166,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 1
+          });
+          const mesh = new THREE.Mesh(sharedHeartGeo, mat);
+          mesh.position.copy(worldPos).add(new THREE.Vector3(
+            (Math.random() - 0.5) * 0.9,
+            0.4 + Math.random() * 0.5,
+            (Math.random() - 0.5) * 0.9
+          ));
+          const s = 0.65 + Math.random() * 0.55;
+          mesh.scale.set(s, s, s);
+          scene.add(mesh);
+          floatingHearts.push({
+            mesh,
+            velY: 0.95 + Math.random() * 0.85,
+            driftX: (Math.random() - 0.5) * 0.65,
+            life: 1.0
+          });
+        }
+      }
+
+      // Shared Butterfly Wing Geometry
+      const sharedWingGeo = new THREE.CircleGeometry(0.14, 10);
+      sharedWingGeo.scale(1.2, 0.85, 1);
+
+      function createButterfly3D(colorHex = 0xff85a1) {
+        const group = new THREE.Group();
+        const wingMat = new THREE.MeshStandardMaterial({
+          color: colorHex,
+          roughness: 0.3,
+          side: THREE.DoubleSide
+        });
+
+        const leftWing = new THREE.Mesh(sharedWingGeo, wingMat);
+        leftWing.position.x = -0.1;
+        const rightWing = new THREE.Mesh(sharedWingGeo, wingMat);
+        rightWing.position.x = 0.1;
+
+        group.add(leftWing, rightWing);
+        group.userData = {
+          leftWing,
+          rightWing,
+          basePos: new THREE.Vector3(),
+          phase: Math.random() * Math.PI * 2,
+          speed: 1.4 + Math.random() * 1.2,
+          radius: 0.8 + Math.random() * 1.4
+        };
+        animatedButterflies.push(group);
+        return group;
+      }
+
+      // Upgraded 3D Cat Builder with Articulated Paws, Rig & Speech Bubble Support
+      function createCat3D(options = {}) {
+        const furColor = options.color !== undefined ? options.color : 0xf49742;
+        const stripeColor = options.stripeColor !== undefined ? options.stripeColor : 0xc96b22;
+        const scale = options.scale || 1.0;
+        const label = options.label || 'Meow! Doakan Mr & Mrs Pengantin bahagia selalu ya 🐾';
+
+        const cat = new THREE.Group();
+        cat.scale.setScalar(scale);
+
+        cat.add(createContactShadow(0.45, 0.01));
+
+        const rig = new THREE.Group();
+        cat.add(rig);
+
+        const segs = isMobile ? 14 : 20;
+        const furMat = new THREE.MeshStandardMaterial({ color: furColor, roughness: 0.55 });
+        const stripeMat = new THREE.MeshStandardMaterial({ color: stripeColor, roughness: 0.6 });
+        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xfffaf2, roughness: 0.5 });
+        const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8da1, roughness: 0.4 });
+        const darkMat = new THREE.MeshStandardMaterial({ color: 0x22181c, roughness: 0.2 });
+        const collarMat = new THREE.MeshStandardMaterial({ color: 0xd9385a, roughness: 0.35 });
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.25, metalness: 0.65 });
+
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.32, segs, segs), furMat);
+        body.scale.set(0.95, 1.08, 1.25);
+        body.position.set(0, 0.33, 0);
+        body.castShadow = !isMobile;
+        rig.add(body);
+
+        const chest = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), whiteMat);
+        chest.scale.set(0.85, 0.95, 0.6);
+        chest.position.set(0, 0.34, 0.24);
+        rig.add(chest);
+
+        for (let i = -1; i <= 1; i++) {
+          const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.06, 0.08), stripeMat);
+          stripe.position.set(0, 0.52 - Math.abs(i) * 0.04, i * 0.14 - 0.05);
+          rig.add(stripe);
+        }
+
+        const pawGeo = new THREE.SphereGeometry(0.095, 10, 8);
+        const paws = [];
+        [
+          [-0.14, 0.11, 0.24],
+          [0.14, 0.11, 0.24],
+          [-0.17, 0.10, -0.18],
+          [0.17, 0.10, -0.18]
+        ].forEach((p) => {
+          const pawPivot = new THREE.Group();
+          pawPivot.position.set(p[0], p[1], p[2]);
+          const paw = new THREE.Mesh(pawGeo, whiteMat);
+          paw.scale.set(1, 0.8, 1.25);
+          pawPivot.add(paw);
+          rig.add(pawPivot);
+          paws.push(pawPivot);
+        });
+
+        const collar = new THREE.Mesh(new THREE.TorusGeometry(0.21, 0.032, 8, 20), collarMat);
+        collar.rotation.x = Math.PI / 2 - 0.15;
+        collar.position.set(0, 0.56, 0.12);
+        rig.add(collar);
+
+        const bell = new THREE.Mesh(new THREE.SphereGeometry(0.058, 10, 10), goldMat);
+        bell.position.set(0, 0.51, 0.34);
+        rig.add(bell);
+
+        const headGroup = new THREE.Group();
+        headGroup.position.set(0, 0.74, 0.16);
+        rig.add(headGroup);
+
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, segs, segs), furMat);
+        head.scale.set(1.08, 0.96, 0.98);
+        head.castShadow = !isMobile;
+        headGroup.add(head);
+
+        [-0.08, 0.08].forEach((x) => {
+          const cheek = new THREE.Mesh(new THREE.SphereGeometry(0.095, 10, 10), whiteMat);
+          cheek.scale.set(1.1, 0.85, 0.8);
+          cheek.position.set(x, -0.06, 0.22);
+          headGroup.add(cheek);
+        });
+
+        const earGeo = new THREE.ConeGeometry(0.11, 0.22, 4);
+        const innerEarGeo = new THREE.ConeGeometry(0.065, 0.15, 4);
+        [-1, 1].forEach((side) => {
+          const ear = new THREE.Mesh(earGeo, furMat);
+          ear.position.set(side * 0.18, 0.24, 0.02);
+          ear.rotation.z = -side * 0.28;
+          ear.rotation.y = side * 0.4;
+          headGroup.add(ear);
+
+          const inner = new THREE.Mesh(innerEarGeo, pinkMat);
+          inner.position.set(side * 0.18, 0.23, 0.055);
+          inner.rotation.z = -side * 0.28;
+          inner.rotation.y = side * 0.4;
+          headGroup.add(inner);
+        });
+
+        [-1, 1].forEach((side) => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.048, 10, 10), darkMat);
+          eye.position.set(side * 0.11, 0.03, 0.245);
+          headGroup.add(eye);
+
+          const shine = new THREE.Mesh(new THREE.SphereGeometry(0.016, 6, 6), whiteMat);
+          shine.position.set(side * 0.11 + 0.015, 0.048, 0.285);
+          headGroup.add(shine);
+
+          const blush = new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), pinkMat);
+          blush.scale.set(1.3, 0.65, 0.4);
+          blush.position.set(side * 0.17, -0.03, 0.23);
+          headGroup.add(blush);
+        });
+
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.04, 3), pinkMat);
+        nose.rotation.x = Math.PI;
+        nose.position.set(0, -0.02, 0.295);
+        headGroup.add(nose);
+
+        const whiskerGeo = new THREE.BoxGeometry(0.18, 0.008, 0.008);
+        [-1, 1].forEach((side) => {
+          [-0.04, -0.07].forEach((yOff, idx) => {
+            const w = new THREE.Mesh(whiskerGeo, whiteMat);
+            w.position.set(side * 0.21, yOff, 0.24);
+            w.rotation.z = side * (idx === 0 ? 0.08 : -0.08);
+            headGroup.add(w);
+          });
+        });
+
+        if (options.crown) {
+          const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.07, 10, 1, true), goldMat);
+          crown.position.set(0, 0.28, 0.05);
+          headGroup.add(crown);
+        }
+
+        const tailPivot = new THREE.Group();
+        tailPivot.position.set(0, 0.26, -0.32);
+        rig.add(tailPivot);
+
+        const tailCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(0, 0.18, -0.18),
+          new THREE.Vector3(0.08, 0.42, -0.22),
+          new THREE.Vector3(0, 0.56, -0.12)
+        ]);
+        const tailMesh = new THREE.Mesh(new THREE.TubeGeometry(tailCurve, 12, 0.048, 8, false), furMat);
+        tailPivot.add(tailMesh);
+
+        cat.userData = {
+          type: 'cat',
+          isGuide: Boolean(options.isGuide),
+          label,
+          rig,
+          headGroup,
+          tailPivot,
+          paws,
+          jumpOffset: 0,
+          trickType: 0,
+          trickTimer: 0,
+          phase: Math.random() * Math.PI * 2
+        };
+
+        body.userData = { parentCat: cat };
+        head.userData = { parentCat: cat };
+        clickableObjects.push(body, head);
+        animatedCats.push(cat);
+
+        return cat;
+      }
+
+      // 3D Bride & Groom Builder (Warm Peach Natural Skin & Contact Shadows)
+      function createCouple3D(options = {}) {
+        const scale = options.scale || 1.0;
+        const couple = new THREE.Group();
+        couple.scale.setScalar(scale);
+
+        couple.add(createContactShadow(1.35, 0.02));
+
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xffd2b8, roughness: 0.6, emissive: 0x3d1e14, emissiveIntensity: 0.08 });
+        const blushMat = new THREE.MeshStandardMaterial({ color: 0xf48fb1, roughness: 0.5 });
+        const eyeMat = new THREE.MeshStandardMaterial({ color: 0x22181c, roughness: 0.2 });
+        const coralMat = new THREE.MeshStandardMaterial({ color: 0xd94b68, roughness: 0.35 });
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.25, metalness: 0.65 });
+        const gownMat = new THREE.MeshStandardMaterial({ color: 0xfffcf5, roughness: 0.4 });
+        const suitMat = new THREE.MeshStandardMaterial({ color: 0x2b2226, roughness: 0.45 });
+        const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xfffaf5, roughness: 0.4 });
+        const darkHairMat = new THREE.MeshStandardMaterial({ color: 0x2b1c20, roughness: 0.5 });
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.6 });
+        const veilMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+
+        // Groom (Left)
+        const groom = new THREE.Group();
+        groom.position.set(-0.62, 0, 0);
+        couple.add(groom);
+
+        const gBody = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 1.15, 18), suitMat);
+        gBody.position.set(0, 0.72, 0);
+        gBody.castShadow = true;
+        groom.add(gBody);
+
+        const gTie = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.32, 0.05), coralMat);
+        gTie.position.set(0, 1.15, 0.15);
+        groom.add(gTie);
+
+        const groomLeftArm = new THREE.Group();
+        groomLeftArm.position.set(-0.28, 1.25, 0);
+        const gArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.58, 12), suitMat);
+        gArm.position.y = -0.22;
+        gArm.rotation.z = 0.25;
+        groomLeftArm.add(gArm);
+        groom.add(groomLeftArm);
+
+        const gRightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.58, 12), suitMat);
+        gRightArm.position.set(0.28, 1.25, 0);
+        gRightArm.rotation.z = -0.25;
+        groom.add(gRightArm);
+
+        const groomHead = new THREE.Group();
+        groomHead.position.set(0, 1.82, 0.02);
+        groom.add(groomHead);
+
+        const gFace = new THREE.Mesh(new THREE.SphereGeometry(0.25, 22, 18), skinMat);
+        gFace.castShadow = true;
+        groomHead.add(gFace);
+
+        const gHair = new THREE.Mesh(new THREE.SphereGeometry(0.26, 20, 16), darkHairMat);
+        gHair.scale.set(1.05, 0.88, 1.05);
+        gHair.position.set(0, 0.08, -0.02);
+        groomHead.add(gHair);
+
+        [-1, 1].forEach((s) => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 10), eyeMat);
+          eye.position.set(s * 0.085, 0.03, 0.235);
+          groomHead.add(eye);
+
+          const blush = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), blushMat);
+          blush.scale.set(1.2, 0.65, 0.4);
+          blush.position.set(s * 0.14, -0.025, 0.215);
+          groomHead.add(blush);
+        });
+        const gSmile = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.012, 8, 16, Math.PI), coralMat);
+        gSmile.rotation.x = Math.PI;
+        gSmile.position.set(0, -0.05, 0.242);
+        groomHead.add(gSmile);
+
+        // Bride (Right)
+        const bride = new THREE.Group();
+        bride.position.set(0.62, 0, 0);
+        couple.add(bride);
+
+        const skirtBottom = new THREE.Mesh(new THREE.ConeGeometry(0.76, 1.18, 28), gownMat);
+        skirtBottom.position.set(0, 0.58, 0);
+        skirtBottom.castShadow = true;
+        bride.add(skirtBottom);
+
+        const waistBelt = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.03, 12, 24), goldMat);
+        waistBelt.rotation.x = Math.PI / 2;
+        waistBelt.position.set(0, 1.08, 0);
+        bride.add(waistBelt);
+
+        const hemTrim = new THREE.Mesh(new THREE.TorusGeometry(0.74, 0.025, 10, 28), goldMat);
+        hemTrim.rotation.x = Math.PI / 2;
+        hemTrim.position.set(0, 0.04, 0);
+        bride.add(hemTrim);
+
+        const bodice = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.22, 0.52, 18), gownMat);
+        bodice.scale.set(1.04, 1, 0.82);
+        bodice.position.set(0, 1.32, 0);
+        bodice.castShadow = true;
+        bride.add(bodice);
+
+        [-1, 1].forEach((s) => {
+          const bArm = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.058, 0.56, 12), skinMat);
+          bArm.position.set(s * 0.28, 1.28, 0.14);
+          bArm.rotation.z = s * 0.42;
+          bArm.rotation.x = -0.65;
+          bride.add(bArm);
+        });
+
+        const bouquet = new THREE.Group();
+        bouquet.position.set(0, 1.12, 0.36);
+        bride.add(bouquet);
+
+        const stem = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.26, 12), leafMat);
+        stem.rotation.x = Math.PI;
+        stem.position.y = -0.08;
+        bouquet.add(stem);
+
+        const bouquetDome = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 12), leafMat);
+        bouquetDome.position.y = 0.05;
+        bouquet.add(bouquetDome);
+
+        [
+          [0, 0.14, 0.06, 0xff5c77],
+          [-0.09, 0.10, 0.08, 0xffb3c1],
+          [0.09, 0.10, 0.08, 0xf4b942],
+          [-0.06, 0.15, -0.04, 0xfff0f3],
+          [0.06, 0.15, -0.04, 0xff5c77],
+          [0, 0.08, 0.13, 0xfff0f3]
+        ].forEach((r) => {
+          const rose = new THREE.Mesh(
+            new THREE.SphereGeometry(0.065, 10, 10),
+            new THREE.MeshStandardMaterial({ color: r[3], roughness: 0.35 })
+          );
+          rose.position.set(r[0], r[1], r[2]);
+          bouquet.add(rose);
+        });
+
+        const brideHead = new THREE.Group();
+        brideHead.position.set(0, 1.88, 0.02);
+        bride.add(brideHead);
+
+        const bFace = new THREE.Mesh(new THREE.SphereGeometry(0.265, 22, 18), skinMat);
+        bFace.castShadow = true;
+        brideHead.add(bFace);
+
+        const bHair = new THREE.Mesh(new THREE.SphereGeometry(0.28, 20, 16), darkHairMat);
+        bHair.scale.set(1.04, 0.92, 1.04);
+        bHair.position.set(0, 0.06, -0.03);
+        brideHead.add(bHair);
+
+        const bun = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 14), darkHairMat);
+        bun.position.set(0, 0.24, -0.14);
+        brideHead.add(bun);
+
+        const tiara = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.024, 10, 24, Math.PI), goldMat);
+        tiara.rotation.x = -Math.PI / 3;
+        tiara.position.set(0, 0.24, 0.10);
+        brideHead.add(tiara);
+
+        const tiaraGem = new THREE.Mesh(new THREE.OctahedronGeometry(0.045), coralMat);
+        tiaraGem.position.set(0, 0.30, 0.18);
+        brideHead.add(tiaraGem);
+
+        const veil = new THREE.Mesh(new THREE.ConeGeometry(0.58, 1.45, 20, 1, true, Math.PI * 0.85, Math.PI * 1.3), veilMat);
+        veil.position.set(0, -0.42, -0.16);
+        brideHead.add(veil);
+
+        [-1, 1].forEach((s) => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 10), eyeMat);
+          eye.position.set(s * 0.09, 0.03, 0.245);
+          brideHead.add(eye);
+
+          const blush = new THREE.Mesh(new THREE.SphereGeometry(0.038, 10, 8), blushMat);
+          blush.scale.set(1.2, 0.65, 0.4);
+          blush.position.set(s * 0.145, -0.025, 0.225);
+          brideHead.add(blush);
+        });
+        const bSmile = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 8, 16, Math.PI), coralMat);
+        bSmile.rotation.x = Math.PI;
+        bSmile.position.set(0, -0.055, 0.252);
+        brideHead.add(bSmile);
+
+        const centerHeart = new THREE.Mesh(new THREE.OctahedronGeometry(0.14), goldMat);
+        centerHeart.position.set(0, 2.25, 0.15);
+        couple.add(centerHeart);
+
+        couple.userData = {
+          groom,
+          bride,
+          groomHead,
+          brideHead,
+          groomLeftArm,
+          bouquet,
+          centerHeart,
+          phase: Math.random() * Math.PI * 2
+        };
+
+        animatedCouples.push(couple);
+        return couple;
+      }
+
+      /* =========================================================
+       * 4. WINDING BOTANICAL GARDEN PATH & STOPS DEFINITION
+       *    (STOP 0 ENVELOPE FLOATS HIGH AT Y = 3.35, ZERO ROAD CLIPPING!)
+       * ========================================================= */
+      const STOPS = [
+        {
+          id: 0,
+          t: 0.0,
+          name: 'Surat Undangan & Kucing 3D',
+          pos: new THREE.Vector3(0, 0, 0),
+          camPos: new THREE.Vector3(0, 3.55, 7.6),
+          lookAt: new THREE.Vector3(0, 3.35, 0)
+        },
+        {
+          id: 1,
+          t: 0.145,
+          name: 'Pos 1 / 7 • Pelaminan Taman Bunga',
+          pos: new THREE.Vector3(10.5, 0.6, -30),
+          camPos: new THREE.Vector3(7.0, 2.75, -20.6),
+          lookAt: new THREE.Vector3(10.5, 2.35, -30)
+        },
+        {
+          id: 2,
+          t: 0.29,
+          name: 'Pos 2 / 7 • Kisah Cinta & Bangku Taman',
+          pos: new THREE.Vector3(-8.5, 1.1, -65),
+          camPos: new THREE.Vector3(-5.5, 3.15, -55.8),
+          lookAt: new THREE.Vector3(-8.5, 2.65, -65)
+        },
+        {
+          id: 3,
+          t: 0.435,
+          name: 'Pos 3 / 7 • Akad & Resepsi',
+          pos: new THREE.Vector3(12.0, 1.5, -100),
+          camPos: new THREE.Vector3(8.5, 3.45, -90.5),
+          lookAt: new THREE.Vector3(12.0, 2.95, -100)
+        },
+        {
+          id: 4,
+          t: 0.58,
+          name: 'Pos 4 / 7 • Lokasi Gedung Balai Kartini',
+          pos: new THREE.Vector3(-10.0, 1.8, -135),
+          camPos: new THREE.Vector3(-6.8, 3.75, -125.4),
+          lookAt: new THREE.Vector3(-10.0, 3.2, -135)
+        },
+        {
+          id: 5,
+          t: 0.725,
+          name: 'Pos 5 / 7 • Galeri Potret Kenangan',
+          pos: new THREE.Vector3(8.5, 2.1, -170),
+          camPos: new THREE.Vector3(5.5, 3.95, -160.5),
+          lookAt: new THREE.Vector3(8.5, 3.45, -170)
+        },
+        {
+          id: 6,
+          t: 0.87,
+          name: 'Pos 6 / 7 • Tanda Kasih & Rekening',
+          pos: new THREE.Vector3(-7.5, 2.3, -205),
+          camPos: new THREE.Vector3(-4.5, 4.15, -195.6),
+          lookAt: new THREE.Vector3(-7.5, 3.65, -205)
+        },
+        {
+          id: 7,
+          t: 1.0,
+          name: 'Pos 7 / 7 • Doa Restu & RSVP Tamu',
+          pos: new THREE.Vector3(0, 2.5, -240),
+          camPos: new THREE.Vector3(0, 4.35, -229.2),
+          lookAt: new THREE.Vector3(0, 3.85, -240)
+        }
+      ];
+
+      const roadCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(5.2, 0.2, -12),
+        new THREE.Vector3(10.5, 0.6, -30),
+        new THREE.Vector3(3.5, 0.8, -48),
+        new THREE.Vector3(-8.5, 1.1, -65),
+        new THREE.Vector3(2.0, 1.3, -82),
+        new THREE.Vector3(12.0, 1.5, -100),
+        new THREE.Vector3(1.5, 1.7, -118),
+        new THREE.Vector3(-10.0, 1.8, -135),
+        new THREE.Vector3(-1.5, 2.0, -152),
+        new THREE.Vector3(8.5, 2.1, -170),
+        new THREE.Vector3(1.0, 2.2, -188),
+        new THREE.Vector3(-7.5, 2.3, -205),
+        new THREE.Vector3(-3.5, 2.4, -222),
+        new THREE.Vector3(0, 2.5, -240)
+      ]);
+
+      const camSpline = new THREE.CatmullRomCurve3(STOPS.map((s) => s.camPos));
+      const lookSpline = new THREE.CatmullRomCurve3(STOPS.map((s) => s.lookAt));
+
+      /* =========================================================
+       * 4. LUSH BOTANICAL GARDEN WORLD BUILDER (60FPS MOBILE)
+       * ========================================================= */
+      const flowerColors = [0xff5c77, 0xff9ebb, 0xffd166, 0xc77dff, 0xfff8f0, 0xff7b54];
+      const stemMat = new THREE.MeshStandardMaterial({ color: 0x122e20, roughness: 0.75 });
+      const centerYellowMat = new THREE.MeshStandardMaterial({ color: 0xffbe0b, roughness: 0.4 });
+      const sharedLeafBaseGeo = new THREE.SphereGeometry(0.38, 8, 6);
+      sharedLeafBaseGeo.scale(1.3, 0.45, 1.3);
+      const sharedFlowerCoreGeo = new THREE.SphereGeometry(0.055, 6, 6);
+      const sharedPetalGeo = new THREE.SphereGeometry(0.068, 6, 6);
+      sharedPetalGeo.scale(1.1, 0.5, 1.4);
+      const sharedPetalMats = flowerColors.map((col) => new THREE.MeshStandardMaterial({ color: col, roughness: 0.35 }));
+
+      function createFlowerCluster3D() {
+        const cluster = new THREE.Group();
+        const leafBase = new THREE.Mesh(sharedLeafBaseGeo, stemMat);
+        leafBase.position.y = 0.1;
+        cluster.add(leafBase);
+
+        const count = isMobile ? 3 : (4 + Math.floor(Math.random() * 3));
+        const petalMat = sharedPetalMats[Math.floor(Math.random() * sharedPetalMats.length)];
+
+        for (let i = 0; i < count; i++) {
+          const fx = (Math.random() - 0.5) * 0.55;
+          const fz = (Math.random() - 0.5) * 0.55;
+          const fy = 0.22 + Math.random() * 0.25;
+
+          const blossom = new THREE.Group();
+          blossom.position.set(fx, fy, fz);
+
+          const core = new THREE.Mesh(sharedFlowerCoreGeo, centerYellowMat);
+          blossom.add(core);
+
+          for (let p = 0; p < 5; p++) {
+            const ang = (p / 5) * Math.PI * 2;
+            const petal = new THREE.Mesh(sharedPetalGeo, petalMat);
+            petal.position.set(Math.cos(ang) * 0.08, 0, Math.sin(ang) * 0.08);
+            petal.rotation.y = -ang;
+            blossom.add(petal);
+          }
+          cluster.add(blossom);
+        }
+        return cluster;
+      }
+
+      function buildBotanicalGardenWorld() {
+        const world = new THREE.Group();
+
+        const meadowSegX = isMobile ? 28 : 48;
+        const meadowSegZ = isMobile ? 44 : 72;
+        const meadowGeo = new THREE.PlaneGeometry(180, 290, meadowSegX, meadowSegZ);
+        meadowGeo.rotateX(-Math.PI / 2);
+        const mPos = meadowGeo.attributes.position;
+        for (let i = 0; i < mPos.count; i++) {
+          const x = mPos.getX(i);
+          const z = mPos.getZ(i);
+          const hill = Math.sin(x * 0.08) * Math.cos(z * 0.05) * 1.4 + Math.max(0, (Math.abs(x) - 14) * 0.12);
+          mPos.setY(i, -1.35 + hill);
+        }
+        meadowGeo.computeVertexNormals();
+
+        const meadowMat = new THREE.MeshStandardMaterial({
+          color: 0x163828,
+          roughness: 0.9,
+          metalness: 0.02
+        });
+        const meadow = new THREE.Mesh(meadowGeo, meadowMat);
+        meadow.position.set(0, 0, -105);
+        meadow.receiveShadow = !isMobile;
+        world.add(meadow);
+
+        const roadTubularSegs = isMobile ? 160 : 240;
+        const roadRadialSegs = isMobile ? 8 : 12;
+        const tubeGeo = new THREE.TubeGeometry(roadCurve, roadTubularSegs, 1.65, roadRadialSegs, false);
+        const pos = tubeGeo.attributes.position;
+        const ringVerts = roadRadialSegs + 1;
+        for (let i = 0; i < pos.count; i++) {
+          const u = Math.min(1, Math.floor(i / ringVerts) / roadTubularSegs);
+          const pt = roadCurve.getPointAt(u);
+          const dy = pos.getY(i) - pt.y;
+          pos.setY(i, pt.y + dy * 0.1);
+        }
+        tubeGeo.computeVertexNormals();
+
+        const roadMat = new THREE.MeshStandardMaterial({
+          color: 0xebd29d,
+          roughness: 0.58,
+          metalness: 0.14
+        });
+        const road = new THREE.Mesh(tubeGeo, roadMat);
+        road.receiveShadow = !isMobile;
+        world.add(road);
+
+        const poleGeo = new THREE.CylinderGeometry(0.04, 0.05, 1.5, 6);
+        const poleMat = new THREE.MeshStandardMaterial({ color: 0x2d1b18, roughness: 0.7 });
+        const bulbGeo = new THREE.SphereGeometry(0.19, 8, 8);
+        const bulbMat = new THREE.MeshBasicMaterial({ color: 0xffe8a3 });
+        const trunkGeo = new THREE.CylinderGeometry(0.16, 0.26, 2.0, 8);
+        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x4a2f27, roughness: 0.85 });
+        const crownGeo = new THREE.SphereGeometry(1.35, 10, 8);
+        crownGeo.scale(1.15, 0.9, 1.15);
+        const sakuraMat = new THREE.MeshStandardMaterial({ color: 0xf49cbb, roughness: 0.55 });
+        const leafCrownMat = new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.7 });
+        const deepBushMat = new THREE.MeshStandardMaterial({ color: 0x24553d, roughness: 0.75 });
+
+        const heroFlowerCount = isMobile ? 12 : 18;
+        for (let a = 0; a < heroFlowerCount; a++) {
+          const ang = (a / heroFlowerCount) * Math.PI * 2;
+          const rad = 3.5 + (a % 3) * 1.4;
+          const fc = createFlowerCluster3D();
+          fc.position.set(Math.cos(ang) * rad, -1.0, Math.sin(ang) * rad - 0.5);
+          fc.scale.setScalar(1.1 + (a % 2) * 0.35);
+          world.add(fc);
+        }
+
+        const totalSteps = isMobile ? 95 : 140;
+        for (let i = 2; i < totalSteps; i++) {
+          const u = i / (totalSteps + 2);
+          const pt = roadCurve.getPointAt(u);
+          const tan = roadCurve.getTangentAt(u);
+          const norm = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
+          const side = (i % 2 === 0) ? 1 : -1;
+
+          const flowerPos = pt.clone().add(norm.clone().multiplyScalar(side * (2.1 + (i % 3) * 0.85)));
+          const cluster = createFlowerCluster3D();
+          cluster.position.set(flowerPos.x, pt.y - 0.18, flowerPos.z);
+          cluster.scale.setScalar(0.95 + (i % 4) * 0.25);
+          world.add(cluster);
+
+          if (i % 3 === 0) {
+            const lPos = pt.clone().add(norm.clone().multiplyScalar(side * 2.15));
+            const pole = new THREE.Mesh(poleGeo, poleMat);
+            pole.position.set(lPos.x, lPos.y + 0.7, lPos.z);
+            world.add(pole);
+
+            const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+            bulb.position.set(lPos.x, lPos.y + 1.5, lPos.z);
+            world.add(bulb);
+          }
+
+          if (i % 4 === 0) {
+            const tPos = pt.clone().add(norm.clone().multiplyScalar(-side * (4.2 + (i % 3) * 1.2)));
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.set(tPos.x, tPos.y + 0.8, tPos.z);
+            world.add(trunk);
+
+            const isSakura = i % 8 === 0;
+            const crown = new THREE.Mesh(
+              crownGeo,
+              isSakura ? sakuraMat : (i % 12 === 0 ? deepBushMat : leafCrownMat)
+            );
+            crown.position.set(tPos.x, tPos.y + 2.15, tPos.z);
+            world.add(crown);
+          }
+
+          if (i % 9 === 0) {
+            const bfly = createButterfly3D(flowerColors[i % flowerColors.length]);
+            bfly.userData.basePos.set(flowerPos.x, pt.y + 1.1 + (i % 3) * 0.4, flowerPos.z);
+            world.add(bfly);
+          }
+        }
+
+        const archGeo = new THREE.TorusGeometry(2.9, 0.14, 10, 24, Math.PI);
+        const vineMat = new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.65 });
+        const archRoseGeo = new THREE.SphereGeometry(0.22, 8, 8);
+        [0.08, 0.22, 0.36, 0.51, 0.65, 0.79, 0.93].forEach((u, idx) => {
+          const pt = roadCurve.getPointAt(u);
+          const tan = roadCurve.getTangentAt(u);
+          const archGroup = new THREE.Group();
+          archGroup.position.set(pt.x, pt.y + 0.05, pt.z);
+          archGroup.lookAt(pt.clone().add(tan));
+
+          const arch = new THREE.Mesh(archGeo, vineMat);
+          archGroup.add(arch);
+
+          for (let r = 1; r <= 9; r++) {
+            const a = (r / 10) * Math.PI;
+            const rose = new THREE.Mesh(archRoseGeo, sharedPetalMats[(r + idx) % sharedPetalMats.length]);
+            rose.position.set(Math.cos(a) * 2.9, Math.sin(a) * 2.9, 0.1);
+            archGroup.add(rose);
+          }
+          world.add(archGroup);
+        });
+
+        scene.add(world);
+      }
+      buildBotanicalGardenWorld();
+
+      /* =========================================================
+       * 4B. COMPANION GUIDE CAT ("SI MENG") + DYNAMIC 3D SPEECH BUBBLE
+       * ========================================================= */
+      const guideCat = createCat3D({
+        color: 0xf49742,
+        stripeColor: 0xc96b22,
+        scale: 1.0,
+        crown: true,
+        isGuide: true,
+        label: 'Meow~ Aku Si Meng, pemandu jalanmu di Taman Bunga Raka & Nisa! Ketuk aku untuk atraksi ya! 🐾🌸'
+      });
+      scene.add(guideCat);
+
+      const STOP_CAT_MESSAGES = [
+        'Ketuk amplop di atas atau ajak aku main ya! 🐾💌',
+        'Selamat datang di Pelaminan Raka & Nisa! 🌸👑',
+        'Di sini awal mula kisah cinta mereka bersemi~ 🐾💖',
+        'Catat jadwal Akad & Resepsinya ya, jangan telat! 💍🎂',
+        'Ketuk pin merah untuk salin rute lokasi gedung! 📍🐾',
+        'Ketuk pigura emas untuk lihat foto kenangan! 📸✨',
+        'Terima kasih atas doa & tanda kasihmu! 🎁🐾',
+        'Tulis doa restumu di bawah ya, terima kasih! 🌸🙏'
+      ];
+
+      const TRICK_CAT_MESSAGES = [
+        'Hup! Salto 360° untuk kebahagiaan Raka & Nisa! 🤸‍♂️🐾',
+        'Yippie! Lompat tinggi penuh cinta~ Meow! 🐾💖',
+        'Putar tari gembira di taman bunga! 💃🌸🐾'
+      ];
+
+      let currentBubbleText = STOP_CAT_MESSAGES[0];
+
+      function drawCatSpeechBubble(ctx, w, h) {
+        ctx.clearRect(0, 0, w, h);
+
+        const rx = 28;
+        const ry = 22;
+        const rw = w - 56;
+        const rh = h - 68;
+        const rad = 46;
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(25, 12, 18, 0.45)';
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 6;
+
+        ctx.fillStyle = 'rgba(255, 252, 244, 0.96)';
+        ctx.strokeStyle = '#d49b27';
+        ctx.lineWidth = 8;
+
+        ctx.beginPath();
+        ctx.moveTo(rx + rad, ry);
+        ctx.lineTo(rx + rw - rad, ry);
+        ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + rad);
+        ctx.lineTo(rx + rw, ry + rh - rad);
+        ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - rad, ry + rh);
+        ctx.lineTo(w / 2 + 26, ry + rh);
+        ctx.lineTo(w / 2, ry + rh + 36);
+        ctx.lineTo(w / 2 - 26, ry + rh);
+        ctx.lineTo(rx + rad, ry + rh);
+        ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - rad);
+        ctx.lineTo(rx, ry + rad);
+        ctx.quadraticCurveTo(rx, ry, rx + rad, ry);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.fillStyle = '#3d1e28';
+        ctx.font = '800 30px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(currentBubbleText, w / 2, ry + rh / 2, rw - 36);
+        ctx.restore();
+      }
+
+      const bubbleTex = makeTexture(drawCatSpeechBubble, 860, 190);
+      const catSpeechBubble = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.55, 0.56),
+        new THREE.MeshBasicMaterial({
+          map: bubbleTex,
+          transparent: true,
+          depthWrite: false,
+          side: THREE.DoubleSide
+        })
+      );
+      catSpeechBubble.position.set(0, 1.48, 0);
+      catSpeechBubble.userData = { parentCat: guideCat };
+      clickableObjects.push(catSpeechBubble);
+      guideCat.add(catSpeechBubble);
+
+      function updateCatSpeechBubble(newText) {
+        if (!newText || newText === currentBubbleText) return;
+        currentBubbleText = newText;
+        const c = bubbleTex.image;
+        const ctx = c.getContext('2d');
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.scale(c.width / 860, c.height / 190);
+        drawCatSpeechBubble(ctx, 860, 190);
+        ctx.restore();
+        bubbleTex.needsUpdate = true;
+      }
+
+      let trickSequenceCounter = 0;
+      let customBubbleLockUntil = 0;
+
+      function triggerCatTrick(targetCat = guideCat) {
+        const u = targetCat.userData;
+        trickSequenceCounter = (trickSequenceCounter + 1) % 3;
+        u.trickType = trickSequenceCounter + 1;
+        u.trickTimer = 1.0;
+
+        const worldPos = new THREE.Vector3();
+        targetCat.getWorldPosition(worldPos);
+        spawnHeartBurst(worldPos, 10);
+        playCatMeowSound(trickSequenceCounter);
+
+        if (targetCat === guideCat) {
+          const msg = TRICK_CAT_MESSAGES[trickSequenceCounter];
+          customBubbleLockUntil = performance.now() + 3400;
+          updateCatSpeechBubble(msg);
+          showToast('🐾 Si Meng: "' + msg + '"');
+        } else {
+          showToast(u.label);
+        }
+      }
+
+      /* =========================================================
+       * 5. STOP 0: FLOATING 3D ENVELOPE + REAL PAPER INVITATION LETTER
+       * ========================================================= */
+      const heroGroup = new THREE.Group();
+      heroGroup.position.copy(STOPS[0].pos);
+      scene.add(heroGroup);
+
+      const heroLawn = new THREE.Mesh(
+        new THREE.CylinderGeometry(3.2, 3.6, 0.28, 32),
+        new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.8 })
+      );
+      heroLawn.position.set(0, -0.95, 0);
+      heroLawn.receiveShadow = !isMobile;
+      heroGroup.add(heroLawn);
+
+      const haloTex = makeTexture((ctx, w, h) => {
+        const cx = w / 2;
+        const cy = h / 2;
+        const grad = ctx.createRadialGradient(cx, cy, w * 0.08, cx, cy, w * 0.48);
+        grad.addColorStop(0, 'rgba(255, 232, 163, 0.42)');
+        grad.addColorStop(0.55, 'rgba(244, 196, 78, 0.65)');
+        grad.addColorStop(0.75, 'rgba(244, 196, 78, 0.15)');
+        grad.addColorStop(1, 'rgba(244, 196, 78, 0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = 'rgba(255, 240, 185, 0.85)';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.arc(cx, cy, w * 0.36, 0, Math.PI * 2);
+        ctx.stroke();
+      }, 512, 512);
+
+      const magicalGroundHalo = new THREE.Mesh(
+        new THREE.PlaneGeometry(4.6, 4.6),
+        new THREE.MeshBasicMaterial({
+          map: haloTex,
+          transparent: true,
+          depthWrite: false
+        })
+      );
+      magicalGroundHalo.rotation.x = -Math.PI / 2;
+      magicalGroundHalo.position.set(0, -0.78, 0);
+      heroGroup.add(magicalGroundHalo);
+
+      const ENV_BASE_Y = 3.35;
+      const envelopeStage = new THREE.Group();
+      envelopeStage.position.set(0, ENV_BASE_Y, 0);
+      heroGroup.add(envelopeStage);
+
+      const envPocketGroup = new THREE.Group();
+      envelopeStage.add(envPocketGroup);
+
+      const ENV_W = 3.7;
+      const ENV_H = 2.4;
+
+      const envBack = new THREE.Mesh(
+        new THREE.BoxGeometry(ENV_W, ENV_H, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0xb83b56, roughness: 0.5 })
+      );
+      envBack.position.set(0, 0, -0.04);
+      envBack.castShadow = !isMobile;
+      envPocketGroup.add(envBack);
+
+      const pocketTex = makeTexture((ctx, w, h) => {
+        const g = ctx.createLinearGradient(0, 0, w, h);
+        g.addColorStop(0, '#d95370');
+        g.addColorStop(1, '#9e2a45');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.strokeStyle = '#f4c44e';
+        ctx.lineWidth = 10;
+        ctx.strokeRect(24, 24, w - 48, h - 48);
+
+        ctx.fillStyle = '#fff9eb';
+        ctx.font = 'italic 700 44px "Playfair Display", serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Raka & Nisa', w / 2, h * 0.52);
+
+        ctx.fillStyle = '#ffe59e';
+        ctx.font = '700 24px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('KETUK AMPLOP UNTUK MEMBACA SURAT UNDANGAN', w / 2, h * 0.78);
+      }, 1024, 512);
+
+      const envFront = new THREE.Mesh(
+        new THREE.BoxGeometry(ENV_W, ENV_H * 0.64, 0.03),
+        new THREE.MeshStandardMaterial({ map: pocketTex, roughness: 0.45 })
+      );
+      envFront.position.set(0, -ENV_H * 0.18, 0.055);
+      envPocketGroup.add(envFront);
+
+      const flapPivot = new THREE.Group();
+      flapPivot.position.set(0, ENV_H / 2, 0.055);
+      envPocketGroup.add(flapPivot);
+
+      const flapShape = new THREE.Shape();
+      flapShape.moveTo(-ENV_W / 2, 0);
+      flapShape.lineTo(ENV_W / 2, 0);
+      flapShape.lineTo(0, -ENV_H * 0.56);
+      flapShape.closePath();
+
+      const flapMesh = new THREE.Mesh(
+        new THREE.ShapeGeometry(flapShape),
+        new THREE.MeshStandardMaterial({ color: 0xad2e4b, roughness: 0.45, side: THREE.DoubleSide })
+      );
+      flapPivot.add(flapMesh);
+
+      const waxSeal = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.24, 0.24, 0.05, 24),
+        new THREE.MeshStandardMaterial({ color: 0xe6af2e, roughness: 0.25, metalness: 0.65 })
+      );
+      waxSeal.rotation.x = Math.PI / 2;
+      waxSeal.position.set(0, -ENV_H * 0.48, 0.035);
+      flapPivot.add(waxSeal);
+
+      let letterCardMesh = null;
+
+      function drawRealInvitationLetter(ctx, w, h) {
+        const paperGrad = ctx.createLinearGradient(0, 0, w, h);
+        paperGrad.addColorStop(0, '#fffdf7');
+        paperGrad.addColorStop(0.5, '#fcf5e3');
+        paperGrad.addColorStop(1, '#f7ebd2');
+        ctx.fillStyle = paperGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(217, 83, 112, 0.12)';
+        [
+          [90, 90],
+          [w - 90, 90],
+          [90, h - 90],
+          [w - 90, h - 90]
+        ].forEach(([cx, cy]) => {
+          for (let p = 0; p < 6; p++) {
+            const a = (p / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(cx + Math.cos(a) * 36, cy + Math.sin(a) * 36, 28, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+        ctx.restore();
+
+        ctx.strokeStyle = '#c99326';
+        ctx.lineWidth = 10;
+        ctx.strokeRect(32, 32, w - 64, h - 64);
+        ctx.strokeStyle = 'rgba(201, 147, 38, 0.5)';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(48, 48, w - 96, h - 96);
+
+        ctx.fillStyle = '#b57c16';
+        ctx.font = '700 28px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('❀  UNDANGAN PERNIKAHAN  ❀', w / 2, 115);
+
+        drawFlourishDivider(ctx, w / 2, 145, 420, '#c99326');
+
+        ctx.fillStyle = '#4a1528';
+        ctx.font = 'italic 700 66px "Playfair Display", serif';
+        ctx.fillText('Mr Pengantin & Mrs Pengantin', w / 2, 235);
+
+        ctx.fillStyle = '#2d6a4f';
+        ctx.font = '800 28px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Sabtu, 12 Desember 2026  •  Pukul 08.00 WIB', w / 2, 292);
+
+        ctx.fillStyle = '#6e3b4b';
+        ctx.font = '600 24px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Bertempat di Taman & Gedung Balai Kartini Bandung', w / 2, 332);
+
+        drawFlourishDivider(ctx, w / 2, 372, 540, '#c99326');
+
+        ctx.fillStyle = '#7a4455';
+        ctx.font = '700 24px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Kepada Yth. Bapak / Ibu / Saudara / i :', w / 2, 428);
+
+        ctx.fillStyle = '#b82547';
+        ctx.font = '700 52px "Playfair Display", serif';
+        ctx.fillText(guestName, w / 2, 495);
+
+        ctx.strokeStyle = '#c99326';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.22, 518);
+        ctx.lineTo(w * 0.78, 518);
+        ctx.stroke();
+
+        ctx.fillStyle = '#5c3341';
+        ctx.font = 'italic 600 23px "Cormorant Garamond", serif';
+        ctx.fillText('“Merupakan suatu kehormatan & kebahagiaan bagi kami apabila Anda berkenan hadir”', w / 2, 568);
+      }
+
+      const letterTex = makeTexture(drawRealInvitationLetter, 1100, 640);
+      letterCardMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(ENV_W * 0.90, ENV_H * 0.86, 0.02),
+        new THREE.MeshStandardMaterial({ map: letterTex, roughness: 0.35 })
+      );
+      letterCardMesh.position.set(0, -0.04, 0.0);
+      letterCardMesh.castShadow = !isMobile;
+      envelopeStage.add(letterCardMesh);
+
+      const heroCat = createCat3D({
+        color: 0xfff8f0,
+        stripeColor: 0xf4b942,
+        scale: 1.05,
+        crown: true,
+        label: 'Meow! Surat undangan untuk ' + guestName + ' melayang indah di atas! 🐾💌'
+      });
+      heroCat.position.set(2.35, -0.8, 0.65);
+      heroCat.rotation.y = -0.45;
+      heroGroup.add(heroCat);
+
+      /* =========================================================
+       * 6. BUILD 7 GARDEN STOPS WITH PURE FLOATING TEXT-ONLY
+       * ========================================================= */
+      function orientToCamera(group, camTarget) {
+        group.lookAt(camTarget.x, group.position.y, camTarget.z);
+      }
+
+      function buildStop1Pelaminan() {
+        const stop = STOPS[1];
+        const g = new THREE.Group();
+        g.position.copy(stop.pos);
+        orientToCamera(g, stop.camPos);
+
+        const stage = new THREE.Mesh(
+          new THREE.CylinderGeometry(4.4, 4.7, 0.32, 36),
+          new THREE.MeshStandardMaterial({ color: 0xf7e3b5, roughness: 0.45 })
+        );
+        stage.position.y = -0.6;
+        stage.receiveShadow = true;
+        g.add(stage);
+
+        const archTorus = new THREE.Mesh(
+          new THREE.TorusGeometry(2.65, 0.14, 14, 36, Math.PI),
+          new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.55 })
+        );
+        archTorus.position.set(0, -0.4, -0.75);
+        g.add(archTorus);
+
+        for (let i = 0; i <= 14; i++) {
+          const ang = (i / 14) * Math.PI;
+          const blossom = new THREE.Mesh(
+            new THREE.SphereGeometry(0.24, 10, 10),
+            new THREE.MeshStandardMaterial({ color: flowerColors[i % flowerColors.length], roughness: 0.35 })
+          );
+          blossom.position.set(Math.cos(ang) * 2.65, -0.4 + Math.sin(ang) * 2.65, -0.65);
+          g.add(blossom);
+        }
+
+        const couple = createCouple3D({ scale: 1.08 });
+        couple.position.set(0, -0.42, 0.25);
+        g.add(couple);
+
+        const catLeft = createCat3D({
+          color: 0xf49742,
+          stripeColor: 0xc96b22,
+          scale: 0.85,
+          label: 'Kucing Mempelai Pria: Si Oyen siap mengawal di taman bunga! 🐾🌸'
+        });
+        catLeft.position.set(-1.75, -0.42, 0.65);
+        catLeft.rotation.y = 0.35;
+        g.add(catLeft);
+
+        const catRight = createCat3D({
+          color: 0xfff8f0,
+          stripeColor: 0xffb3c1,
+          scale: 0.85,
+          crown: true,
+          label: 'Kucing Mempelai Wanita: Si Putih memakai mahkota bunga! 🐾👑'
+        });
+        catRight.position.set(1.75, -0.42, 0.65);
+        catRight.rotation.y = -0.35;
+        g.add(catRight);
+
+        const topText = createFloatingTextPlane((ctx, w, h) => {
+          drawFloatingLine(ctx, 'BISMILLAHIRRAHMANIRRAHIM • ASSALAMU’ALAIKUM WR. WB.', w / 2, 110, '800 30px "Plus Jakarta Sans", sans-serif', '#ffe89e');
+          drawFloatingLine(ctx, 'Mempelai Berbahagia', w / 2, 195, 'italic 700 68px "Playfair Display", serif', '#ffffff');
+          drawFlourishDivider(ctx, w / 2, 240, 520, '#ffd97d');
+        }, 7.6, 1.8, 1400, 340);
+        topText.mesh.position.set(0, 3.1, -0.3);
+        g.add(topText.mesh);
+
+        const leftGroomText = createFloatingTextPlane((ctx, w, h) => {
+          drawFloatingLine(ctx, 'Mr Pengantin', w / 2, 150, '700 66px "Playfair Display", serif', '#fffdf7');
+          drawFlourishDivider(ctx, w / 2, 195, 340, '#ffd97d');
+          drawFloatingLine(ctx, 'Putra Pertama dari', w / 2, 260, '700 32px "Plus Jakarta Sans", sans-serif', '#ffe699');
+          drawFloatingLine(ctx, 'Bpk. Hendra & Ibu Sari', w / 2, 318, '800 36px "Plus Jakarta Sans", sans-serif', '#ffffff');
+        }, 3.8, 2.0, 800, 420);
+        leftGroomText.mesh.position.set(-2.95, 1.35, 0.2);
+        leftGroomText.mesh.rotation.y = 0.18;
+        g.add(leftGroomText.mesh);
+
+        const rightBrideText = createFloatingTextPlane((ctx, w, h) => {
+          drawFloatingLine(ctx, 'Mrs Pengantin', w / 2, 150, '700 66px "Playfair Display", serif', '#fffdf7');
+          drawFlourishDivider(ctx, w / 2, 195, 340, '#ffd97d');
+          drawFloatingLine(ctx, 'Putri Bungsu dari', w / 2, 260, '700 32px "Plus Jakarta Sans", sans-serif', '#ffe699');
+          drawFloatingLine(ctx, 'Bpk. Surya & Ibu Dewi', w / 2, 318, '800 36px "Plus Jakarta Sans", sans-serif', '#ffffff');
+        }, 3.8, 2.0, 800, 420);
+        rightBrideText.mesh.position.set(2.95, 1.35, 0.2);
+        rightBrideText.mesh.rotation.y = -0.18;
+        g.add(rightBrideText.mesh);
+
+        scene.add(g);
+      }
+      buildStop1Pelaminan();
+
+      function buildStop2LoveStory() {
+        const stop = STOPS[2];
+        const g = new THREE.Group();
+        g.position.copy(stop.pos);
+        orientToCamera(g, stop.camPos);
+
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(4.2, 4.5, 0.3, 32),
+          new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.65 })
+        );
+        base.position.y = -0.6;
+        g.add(base);
+
+        const bench = new THREE.Mesh(
+          new THREE.BoxGeometry(2.4, 0.18, 0.8),
+          new THREE.MeshStandardMaterial({ color: 0x8d5538, roughness: 0.7 })
+        );
+        bench.position.set(0, -0.25, 0.85);
+        g.add(bench);
+
+        const storyCat = createCat3D({
+          color: 0xf6d5b0,
+          stripeColor: 0xd99b66,
+          scale: 0.95,
+          label: 'Meow~ Dari pertemuan pertama tahun 2022 sampai janji suci 2026! 🐾💖'
+        });
+        storyCat.position.set(0, -0.15, 0.85);
+        g.add(storyCat);
+
+        const storyFloating = createFloatingTextPlane((ctx, w, h) => {
+          drawFloatingLine(ctx, 'PERJALANAN CINTA KAMI', w / 2, 75, '800 30px "Plus Jakarta Sans", sans-serif', '#ffe89e');
+          drawFloatingLine(ctx, 'Untaian Kisah Menuju Halal', w / 2, 148, 'italic 700 66px "Playfair Display", serif', '#ffffff');
+          drawFlourishDivider(ctx, w / 2, 190, 620, '#ffd97d');
+
+          const cols = [
+            {
+              year: '❀ 2022 ❀',
+              title: 'Pertemuan Pertama',
+              line1: 'Berawal dari senyum hangat',
+              line2: '& obrolan sore di taman bunga.'
+            },
+            {
+              year: '❀ 2024 ❀',
+              title: 'Tumbuh Bersama',
+              line1: 'Saling menguatkan langkah',
+              line2: 'melewati suka & duka bersama.'
+            },
+            {
+              year: '❀ 2026 ❀',
+              title: 'Ikatan Suci',
+              line1: 'Dengan restu kedua orang tua',
+              line2: 'mantap melangkah ke pelaminan.'
+            }
+          ];
+
+          cols.forEach((c, i) => {
+            const cx = w * (0.18 + i * 0.32);
+            drawFloatingLine(ctx, c.year, cx, 275, '800 34px "Plus Jakarta Sans", sans-serif', '#ffd97d');
+            drawFloatingLine(ctx, c.title, cx, 338, '700 44px "Playfair Display", serif', '#fffdf7');
+            drawFloatingLine(ctx, c.line1, cx, 398, '600 27px "Plus Jakarta Sans", sans-serif', '#fff5e4');
+            drawFloatingLine(ctx, c.line2, cx, 438, '600 27px "Plus Jakarta Sans", sans-serif', '#fff5e4');
+          });
+
+          drawFlourishDivider(ctx, w / 2, 505, 760, '#ffd97d');
+          drawFloatingLine(ctx, '“Cinta sejati mekar semakin indah di setiap musim kehidupan.”', w / 2, 565, 'italic 700 36px "Cormorant Garamond", serif', '#ffe89e');
+        }, 8.2, 3.8, 1600, 640);
+
+        storyFloating.mesh.position.set(0, 1.95, -0.35);
+        g.add(storyFloating.mesh);
+
+        scene.add(g);
+      }
+      buildStop2LoveStory();
+
+      const floatingRingsGroup = new THREE.Group();
+      function buildStop3AkadResepsi() {
+        const stop = STOPS[3];
+        const g = new THREE.Group();
+        g.position.copy(stop.pos);
+        orientToCamera(g, stop.camPos);
+
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(4.4, 4.7, 0.3, 36),
+          new THREE.MeshStandardMaterial({ color: 0xf7e3b5, roughness: 0.45 })
+        );
+        base.position.y = -0.6;
+        g.add(base);
+
+        const ringMat = new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.2, metalness: 0.8 });
+        const r1 = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.065, 16, 36), ringMat);
+        r1.position.x = -0.2;
+        r1.rotation.y = 0.4;
+        const r2 = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.065, 16, 36), ringMat);
+        r2.position.x = 0.2;
+        r2.rotation.y = -0.4;
+        floatingRingsGroup.add(r1, r2);
+        floatingRingsGroup.position.set(-1.55, 0.35, 0.95);
+        g.add(floatingRingsGroup);
+
+        const cakeGroup = new THREE.Group();
+        cakeGroup.position.set(1.55, -0.42, 0.95);
+        const cakeMat = new THREE.MeshStandardMaterial({ color: 0xfff8f0, roughness: 0.4 });
+        const icingMat = new THREE.MeshStandardMaterial({ color: 0xff8da1, roughness: 0.35 });
+        [
+          [0.65, 0.42, 0.21],
+          [0.46, 0.38, 0.60],
+          [0.28, 0.34, 0.95]
+        ].forEach((t) => {
+          const tier = new THREE.Mesh(new THREE.CylinderGeometry(t[0], t[0], t[1], 24), cakeMat);
+          tier.position.y = t[2];
+          cakeGroup.add(tier);
+          const trim = new THREE.Mesh(new THREE.TorusGeometry(t[0], 0.03, 10, 24), icingMat);
+          trim.rotation.x = Math.PI / 2;
+          trim.position.y = t[2] + t[1] / 2;
+          cakeGroup.add(trim);
+        });
+        g.add(cakeGroup);
+
+        const scheduleFloating = createFloatingTextPlane((ctx, w, h) => {
+          drawFloatingLine(ctx, 'RANGKAIAN WAKTU ACARA • SABTU, 12 DESEMBER 2026', w / 2, 80, '800 30px "Plus Jakarta Sans", sans-serif', '#ffe89e');
+          drawFloatingLine(ctx, 'Akad Nikah & Resepsi', w / 2, 155, 'italic 700 68px "Playfair Display", serif', '#ffffff');
+          drawFlourishDivider(ctx, w / 2, 198, 600, '#ffd97d');
+
+          const leftX = w * 0.28;
+          drawFloatingLine(ctx, '💍 Akad Nikah', leftX, 290, '700 54px "Playfair Display", serif', '#fffdf7');
+          drawFloatingLine(ctx, '08.00 – 10.00 WIB', leftX, 360, '800 42px "Plus Jakarta Sans", sans-serif', '#ffd97d');
+          drawFloatingLine(ctx, 'Prosesi Ijab Qabul Sakral & Khidmat', leftX, 415, '600 28px "Plus Jakarta Sans", sans-serif', '#fff5e4');
+
+          const rightX = w * 0.72;
+          drawFloatingLine(ctx, '🌸 Resepsi Taman', rightX, 290, '700 54px "Playfair Display", serif', '#fffdf7');
+          drawFloatingLine(ctx, '11.00 – 14.00 WIB', rightX, 360, '800 42px "Plus Jakarta Sans", sans-serif', '#ffd97d');
+          drawFloatingLine(ctx, 'Jamuan Kasih & Ramah Tamah Tamu', rightX, 415, '600 28px "Plus Jakarta Sans", sans-serif', '#fff5e4');
+
+          drawFlourishDivider(ctx, w / 2, 485, 680, '#ffd97d');
+        }, 8.0, 3.6, 1500, 560);
+
+        scheduleFloating.mesh.position.set(0, 1.95, -0.35);
+        g.add(scheduleFloating.mesh);
+
+        scene.add(g);
+      }
+      buildStop3AkadResepsi();
+
+      let bouncingPin = null;
+      function buildStop4Location() {
+        const stop = STOPS[4];
+        const g = new THREE.Group();
+        g.position.copy(stop.pos);
+        orientToCamera(g, stop.camPos);
+
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(4.4, 4.7, 0.3, 36),
+          new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.65 })
+        );
+        base.position.y = -0.6;
+        g.add(base);
+
+        const building = new THREE.Group();
+        building.position.set(0, -0.42, 0.95);
+        g.add(building);
+
+        const hallBody = new THREE.Mesh(
+          new THREE.BoxGeometry(2.4, 0.95, 1.3),
+          new THREE.MeshStandardMaterial({ color: 0xfff8eb, roughness: 0.45 })
+        );
+        hallBody.position.y = 0.48;
+        building.add(hallBody);
+
+        const hallRoof = new THREE.Mesh(
+          new THREE.ConeGeometry(1.9, 0.7, 4),
+          new THREE.MeshStandardMaterial({ color: 0xc94a66, roughness: 0.5 })
+        );
+        hallRoof.rotation.y = Math.PI / 4;
+        hallRoof.position.y = 1.3;
+        building.add(hallRoof);
+
+        bouncingPin = new THREE.Group();
+        bouncingPin.position.set(0, 2.05, 0.95);
+        const pinHead = new THREE.Mesh(
+          new THREE.SphereGeometry(0.28, 20, 16),
+          new THREE.MeshStandardMaterial({ color: 0xff3b5c, roughness: 0.3 })
+        );
+        const pinCone = new THREE.Mesh(
+          new THREE.ConeGeometry(0.2, 0.48, 18),
+          new THREE.MeshStandardMaterial({ color: 0xff3b5c, roughness: 0.3 })
+        );
+        pinCone.rotation.x = Math.PI;
+        pinCone.position.y = -0.28;
+        bouncingPin.add(pinHead, pinCone);
+        pinHead.userData = {
+          action: 'copyLocation',
+          text: 'Gedung Balai Kartini Bandung, Jl. Dago Asri No. 88, Kota Bandung'
+        };
+        clickableObjects.push(pinHead);
+        g.add(bouncingPin);
+
+        const locFloating = createFloatingTextPlane((ctx, w, h) => {
+          drawFloatingLine(ctx, 'TEMPAT & PETA LOKASI ACARA', w / 2, 85, '800 30px "Plus Jakarta Sans", sans-serif', '#ffe89e');
+          drawFloatingLine(ctx, 'Gedung Balai Kartini Bandung', w / 2, 168, 'italic 700 68px "Playfair Display", serif', '#ffffff');
+          drawFlourishDivider(ctx, w / 2, 215, 580, '#ffd97d');
+          drawFloatingLine(ctx, 'Jl. Dago Asri No. 88, Kecamatan Coblong, Kota Bandung', w / 2, 280, '700 36px "Plus Jakarta Sans", sans-serif', '#fffdf7');
+          drawFloatingLine(ctx, '📍 Ketuk Teks atau Pin Merah 3D untuk Menyalin Alamat Rute', w / 2, 355, '800 32px "Plus Jakarta Sans", sans-serif', '#ffd97d');
+        }, 7.8, 2.7, 1500, 440);
+
+        locFloating.mesh.position.set(0, 2.35, -0.45);
+        locFloating.mesh.userData = {
+          action: 'copyLocation',
+          text: 'Gedung Balai Kartini Bandung, Jl. Dago Asri No. 88, Kota Bandung'
+        };
+        clickableObjects.push(locFloating.mesh);
+        g.add(locFloating.mesh);
+
+        scene.add(g);
+      }
+      buildStop4Location();
+
+      const GALLERY_DATA = [
+        { caption: 'Momen 1 • Senja Pertama di Taman Bunga Bersama Kucing (2022)', c1: '#ff9a8b', c2: '#ff6a88' },
+        { caption: 'Momen 2 • Tawa & Cerita di Kota Bandung (2024)', c1: '#f6d365', c2: '#fda085' },
+        { caption: 'Momen 3 • Hari Lamaran Penuh Bahagia (2026)', c1: '#84fab0', c2: '#8fd3f4' },
+        { caption: 'Momen 4 • Menuju Hari Bahagia Pernikahan (12.12.2026)', c1: '#fccb90', c2: '#d57eeb' }
+      ];
+      const galleryDataUrls = [];
+
+      function buildStop5Gallery() {
+        const stop = STOPS[5];
+        const g = new THREE.Group();
+        g.position.copy(stop.pos);
+        orientToCamera(g, stop.camPos);
+
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(4.8, 5.1, 0.3, 36),
+          new THREE.MeshStandardMaterial({ color: 0xf7e3b5, roughness: 0.45 })
+        );
+        base.position.y = -0.6;
+        g.add(base);
+
+        const headerFloating = createFloatingTextPlane((ctx, w, h) => {
+          drawFloatingLine(ctx, 'MOMEN KEBAHAGIAAN • KETUK PIGURA 3D UNTUK MEMPERBESAR', w / 2, 75, '800 28px "Plus Jakarta Sans", sans-serif', '#ffe89e');
+          drawFloatingLine(ctx, 'Galeri Potret Kenangan', w / 2, 148, 'italic 700 64px "Playfair Display", serif', '#ffffff');
+          drawFlourishDivider(ctx, w / 2, 188, 540, '#ffd97d');
+        }, 7.6, 1.4, 1400, 240);
+        headerFloating.mesh.position.set(0, 3.05, -0.35);
+        g.add(headerFloating.mesh);
+
+        GALLERY_DATA.forEach((item, idx) => {
+          const tex = makeTexture((ctx, w, h) => {
+            const grad = ctx.createLinearGradient(0, 0, w, h);
+            grad.addColorStop(0, item.c1);
+            grad.addColorStop(1, item.c2);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.strokeStyle = '#fff8f0';
+            ctx.lineWidth = 12;
+            ctx.strokeRect(22, 22, w - 44, h - 44);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(w / 2, h * 0.44, 115, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#3d1e28';
+            ctx.font = '700 42px "Playfair Display", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Raka & Nisa 🌸🐾', w / 2, h * 0.46);
+
+            ctx.fillStyle = '#fffdf9';
+            ctx.font = '700 23px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText(item.caption, w / 2, h * 0.84);
+          }, 640, 460);
+
+          galleryDataUrls.push(tex.image.toDataURL('image/png'));
+
+          const frameGroup = new THREE.Group();
+          const xOffset = (idx - 1.5) * 1.82;
+          const zOffset = Math.abs(idx - 1.5) * 0.32;
+          frameGroup.position.set(xOffset, 1.15, zOffset);
+          frameGroup.rotation.y = (1.5 - idx) * 0.16;
+
+          const goldRim = new THREE.Mesh(
+            new THREE.BoxGeometry(1.62, 2.05, 0.08),
+            new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.25, metalness: 0.6 })
+          );
+          frameGroup.add(goldRim);
+
+          const photoPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(1.46, 1.88),
+            new THREE.MeshStandardMaterial({ map: tex, roughness: 0.3 })
+          );
+          photoPlane.position.z = 0.05;
+          photoPlane.userData = {
+            action: 'openGallery',
+            index: idx
+          };
+          clickableObjects.push(photoPlane);
+          frameGroup.add(photoPlane);
+
+          g.add(frameGroup);
+        });
+
+        scene.add(g);
+      }
+      buildStop5Gallery();
+
+      function buildStop6Gift() {
+        const stop = STOPS[6];
+        const g = new THREE.Group();
+        g.position.copy(stop.pos);
+        orientToCamera(g, stop.camPos);
+
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(4.2, 4.5, 0.3, 36),
+          new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.65 })
+        );
+        base.position.y = -0.6;
+        g.add(base);
+
+        const chest = new THREE.Group();
+        chest.position.set(-0.95, -0.35, 0.95);
+        const boxWood = new THREE.Mesh(
+          new THREE.BoxGeometry(1.35, 0.7, 0.9),
+          new THREE.MeshStandardMaterial({ color: 0x8f394d, roughness: 0.5 })
+        );
+        boxWood.position.y = 0.35;
+        chest.add(boxWood);
+
+        const goldPile = new THREE.Mesh(
+          new THREE.SphereGeometry(0.52, 16, 12),
+          new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.25, metalness: 0.7 })
+        );
+        goldPile.scale.set(1.1, 0.5, 0.8);
+        goldPile.position.y = 0.7;
+        chest.add(goldPile);
+        g.add(chest);
+
+        const luckyCat = createCat3D({
+          color: 0xfff8f0,
+          stripeColor: 0xf4b942,
+          scale: 1.0,
+          crown: true,
+          label: 'Meow! Terima kasih atas doa & tanda kasih untuk Raka & Nisa! 🐾🎁'
+        });
+        luckyCat.position.set(1.05, -0.4, 0.95);
+        luckyCat.rotation.y = -0.25;
+        g.add(luckyCat);
+
+        const giftFloating = createFloatingTextPlane((ctx, w, h) => {
+          drawFloatingLine(ctx, 'TANDA KASIH & AMPLOP DIGITAL', w / 2, 80, '800 30px "Plus Jakarta Sans", sans-serif', '#ffe89e');
+          drawFloatingLine(ctx, 'Bank BCA • 1234567890', w / 2, 170, '700 68px "Playfair Display", serif', '#ffffff');
+          drawFlourishDivider(ctx, w / 2, 215, 560, '#ffd97d');
+          drawFloatingLine(ctx, 'a.n. Mr Pengantin & Mrs Pengantin', w / 2, 280, '700 38px "Plus Jakarta Sans", sans-serif', '#fffdf7');
+          drawFloatingLine(ctx, '🎁 Ketuk Teks Melayang Ini untuk Menyalin Nomor Rekening', w / 2, 355, '800 32px "Plus Jakarta Sans", sans-serif', '#ffd97d');
+        }, 7.6, 2.7, 1500, 440);
+
+        giftFloating.mesh.position.set(0, 2.15, -0.4);
+        giftFloating.mesh.userData = {
+          action: 'copyBank',
+          text: '1234567890'
+        };
+        clickableObjects.push(giftFloating.mesh);
+        g.add(giftFloating.mesh);
+
+        scene.add(g);
+      }
+      buildStop6Gift();
+
+      const wishesList = [
+        'Budi & Keluarga — Semoga menjadi keluarga Sakinah Mawaddah Warahmah!',
+        'Siti Rahma — Bahagia selalu Raka & Nisa sampai kakek nenek!',
+        'Dimas Aditya — Selamat menempuh hidup baru di taman bahagia!',
+        'Ayu Lestari — Semoga diberkahi kebahagiaan dunia & akhirat!'
+      ];
+      let wishingFloatingObj = null;
+      let drawFloatingWishesFn = null;
+
+      function buildStop7Rsvp() {
+        const stop = STOPS[7];
+        const g = new THREE.Group();
+        g.position.copy(stop.pos);
+        orientToCamera(g, stop.camPos);
+
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(4.8, 5.2, 0.32, 36),
+          new THREE.MeshStandardMaterial({ color: 0xf7e3b5, roughness: 0.45 })
+        );
+        base.position.y = -0.6;
+        g.add(base);
+
+        drawFloatingWishesFn = function (ctx, w, h) {
+          ctx.clearRect(0, 0, w, h);
+          drawFloatingLine(ctx, 'UNTAIAN DOA RESTU & KONFIRMASI KEHADIRAN (RSVP)', w / 2, 75, '800 28px "Plus Jakarta Sans", sans-serif', '#ffe89e');
+          drawFloatingLine(ctx, 'Terima Kasih Atas Doa & Kehadiran Anda', w / 2, 148, 'italic 700 58px "Playfair Display", serif', '#ffffff');
+          drawFlourishDivider(ctx, w / 2, 190, 620, '#ffd97d');
+
+          const recent = wishesList.slice(-4);
+          recent.forEach((wish, i) => {
+            const y = 262 + i * 74;
+            drawFloatingLine(ctx, '❀  ' + wish + '  ❀', w / 2, y, '700 32px "Plus Jakarta Sans", sans-serif', i % 2 === 0 ? '#fffdf7' : '#ffe89e');
+          });
+        };
+
+        wishingFloatingObj = createFloatingTextPlane(drawFloatingWishesFn, 8.2, 3.3, 1600, 560);
+        wishingFloatingObj.mesh.position.set(0, 2.35, -0.5);
+        g.add(wishingFloatingObj.mesh);
+
+        const finaleCouple = createCouple3D({ scale: 0.95 });
+        finaleCouple.position.set(-1.55, -0.4, 0.85);
+        finaleCouple.rotation.y = 0.25;
+        g.add(finaleCouple);
+
+        const finaleCat = createCat3D({
+          color: 0xf49742,
+          stripeColor: 0xc96b22,
+          scale: 0.95,
+          crown: true,
+          label: 'Meow! Tulis doa restumu di kolom bawah ya, nanti langsung melayang di taman! 🐾🌸'
+        });
+        finaleCat.position.set(1.6, -0.4, 0.95);
+        finaleCat.rotation.y = -0.28;
+        g.add(finaleCat);
+
+        scene.add(g);
+      }
+      buildStop7Rsvp();
+
+      /* =========================================================
+       * 7. FLOATING FLOWER PETALS IN THE GARDEN BREEZE
+       * ========================================================= */
+      const pCount = 480;
+      const pGeo = new THREE.BufferGeometry();
+      const pPos = new Float32Array(pCount * 3);
+      for (let i = 0; i < pCount; i++) {
+        pPos[i * 3] = (Math.random() - 0.5) * 46;
+        pPos[i * 3 + 1] = Math.random() * 14 - 1;
+        pPos[i * 3 + 2] = -Math.random() * 225 + 10;
+      }
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+      const petals = new THREE.Points(
+        pGeo,
+        new THREE.PointsMaterial({ color: 0xffb3c6, size: 0.24, transparent: true, opacity: 0.88 })
+      );
+      scene.add(petals);
+
+      /* =========================================================
+       * 8. UI CONTROLS, GUEST NAME MODAL, RAYCASTER & SCROLL
+       * ========================================================= */
+      let isOpened = false;
+      let autoSpin = false;
+      let openProgress = 0;
+      let targetOpen = 0;
+      let scrollProgress = 0;
+      let smoothScroll = 0;
+      let activeStopIdx = 0;
+
+      let userYaw = 0;
+      let userPitch = 0;
+      let userZoom = 0;
+      let isDragging = false;
+      let prevX = 0;
+      let prevY = 0;
+
+      const toggleBtn = document.getElementById('toggleBtn');
+      const spinBtn = document.getElementById('spinBtn');
+      const startJourneyBtn = document.getElementById('startJourneyBtn');
+      const hudStopLabel = document.getElementById('hudStopLabel');
+      const toastEl = document.getElementById('toast');
+
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => toastEl.classList.remove('show'), 3000);
+      }
+
+      function copyToClipboard(text, message) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast(message);
+        } catch (e) {
+          showToast(message + ': ' + text);
+        }
+        document.body.removeChild(ta);
+      }
+
+      function refreshLetterTexture() {
+        if (!letterCardMesh) return;
+        const c = letterCardMesh.material.map.image;
+        const ctx = c.getContext('2d');
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.scale(c.width / 1100, c.height / 640);
+        drawRealInvitationLetter(ctx, 1100, 640);
+        ctx.restore();
+        letterCardMesh.material.map.needsUpdate = true;
+        heroCat.userData.label = 'Meow! Surat undangan untuk ' + guestName + ' sudah siap dibaca! 🐾💌';
+      }
+
+      const guestModal = document.getElementById('guestModal');
+      const guestInput = document.getElementById('guestInput');
+      document.getElementById('openGuestModalBtn').addEventListener('click', () => {
+        guestInput.value = guestName;
+        guestModal.classList.add('open');
+      });
+      document.getElementById('cancelGuestBtn').addEventListener('click', () => {
+        guestModal.classList.remove('open');
+      });
+      document.getElementById('guestForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const val = guestInput.value.trim();
+        if (val) {
+          guestName = val;
+          refreshLetterTexture();
+          if (!isOpened) setEnvelopeOpen(true);
+          showToast('Nama tamu pada Kertas Surat diperbarui: ' + guestName + ' 💌');
+        }
+        guestModal.classList.remove('open');
+      });
+
+      function setEnvelopeOpen(open) {
+        isOpened = open;
+        targetOpen = open ? 1 : 0;
+        if (open) {
+          document.body.classList.remove('locked');
+          document.body.classList.add('opened');
+          toggleBtn.textContent = '✉ Tutup Surat';
+          spawnHeartBurst(new THREE.Vector3(0, 1.4, 0.5), 10);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.body.classList.add('locked');
+          document.body.classList.remove('opened', 'scrolled', 'rsvp-on');
+          toggleBtn.textContent = '✉ Buka Surat Undangan';
+        }
+      }
+
+      toggleBtn.addEventListener('click', () => setEnvelopeOpen(!isOpened));
+
+      spinBtn.addEventListener('click', () => {
+        autoSpin = !autoSpin;
+        spinBtn.setAttribute('aria-pressed', String(autoSpin));
+      });
+
+      function scrollToStop(idx) {
+        if (!isOpened) setEnvelopeOpen(true);
+        const clamped = Math.max(0, Math.min(STOPS.length - 1, idx));
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        window.scrollTo({ top: STOPS[clamped].t * maxScroll, behavior: 'smooth' });
+      }
+
+      startJourneyBtn.addEventListener('click', () => scrollToStop(1));
+      document.getElementById('prevStopBtn').addEventListener('click', () => scrollToStop(activeStopIdx - 1));
+      document.getElementById('nextStopBtn').addEventListener('click', () => scrollToStop(activeStopIdx + 1));
+
+      document.getElementById('heroCatTrickBtn').addEventListener('click', () => triggerCatTrick(guideCat));
+      document.getElementById('hudCatTrickBtn').addEventListener('click', () => triggerCatTrick(guideCat));
+
+      document.getElementById('zoomIn').addEventListener('click', () => {
+        userZoom = Math.max(-2.6, userZoom - 0.65);
+      });
+      document.getElementById('zoomOut').addEventListener('click', () => {
+        userZoom = Math.min(3.2, userZoom + 0.65);
+      });
+
+      let currentGalleryIdx = 0;
+      const lightbox = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lbImg');
+      const lbCap = document.getElementById('lbCap');
+
+      function showLightbox(idx) {
+        currentGalleryIdx = (idx + GALLERY_DATA.length) % GALLERY_DATA.length;
+        lbImg.src = galleryDataUrls[currentGalleryIdx];
+        lbCap.textContent = GALLERY_DATA[currentGalleryIdx].caption;
+        lightbox.classList.add('open');
+      }
+
+      document.getElementById('lbClose').addEventListener('click', () => lightbox.classList.remove('open'));
+      document.getElementById('lbPrev').addEventListener('click', () => showLightbox(currentGalleryIdx - 1));
+      document.getElementById('lbNext').addEventListener('click', () => showLightbox(currentGalleryIdx + 1));
+
+      document.getElementById('rsvpBar').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('rsvpName');
+        const val = input.value.trim();
+        if (!val) return;
+        wishesList.push(val);
+        input.value = '';
+        if (wishingFloatingObj && drawFloatingWishesFn) {
+          const c = wishingFloatingObj.tex.image;
+          const ctx = c.getContext('2d');
+          ctx.save();
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, c.width, c.height);
+          ctx.scale(c.width / wishingFloatingObj.logicalW, c.height / wishingFloatingObj.logicalH);
+          drawFloatingWishesFn(ctx, wishingFloatingObj.logicalW, wishingFloatingObj.logicalH);
+          ctx.restore();
+          wishingFloatingObj.tex.needsUpdate = true;
+        }
+        triggerCatTrick(guideCat);
+        spawnHeartBurst(STOPS[7].pos.clone().add(new THREE.Vector3(0, 2, 1)), 12);
+        showToast('Terima kasih! Doa restu Anda telah melayang di Taman 3D 🌸💖');
+      });
+
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      let downTime = 0;
+
+      canvas.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        prevX = e.clientX;
+        prevY = e.clientY;
+        downTime = performance.now();
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - prevX;
+        const dy = e.clientY - prevY;
+        prevX = e.clientX;
+        prevY = e.clientY;
+        userYaw -= dx * 0.0045;
+        userPitch = Math.max(-0.35, Math.min(0.45, userPitch - dy * 0.0035));
+      });
+
+      window.addEventListener('pointerup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        if (performance.now() - downTime > 240) return;
+
+        pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+        pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+
+        const hits = raycaster.intersectObjects(clickableObjects, true);
+        if (hits.length > 0) {
+          const obj = hits[0].object;
+          if (obj.userData.parentCat) {
+            triggerCatTrick(obj.userData.parentCat);
+            return;
+          }
+          if (obj.userData.action === 'openGallery') {
+            showLightbox(obj.userData.index);
+            return;
+          }
+          if (obj.userData.action === 'copyBank') {
+            copyToClipboard(obj.userData.text, 'Nomor Rekening BCA 1234567890 berhasil disalin! 🎁');
+            return;
+          }
+          if (obj.userData.action === 'copyLocation') {
+            copyToClipboard(obj.userData.text, 'Alamat Gedung Balai Kartini Bandung berhasil disalin! 📍');
+            return;
+          }
+        }
+
+        if (scrollProgress < 0.05) {
+          const envHits = raycaster.intersectObjects(envelopeStage.children, true);
+          if (envHits.length > 0) {
+            setEnvelopeOpen(!isOpened);
+          }
+        }
+      });
+
+      window.addEventListener('scroll', () => {
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        scrollProgress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+
+        if (scrollProgress > 0.03) {
+          document.body.classList.add('scrolled');
+        } else {
+          document.body.classList.remove('scrolled');
+        }
+
+        if (scrollProgress > 0.92) {
+          document.body.classList.add('rsvp-on');
+        } else {
+          document.body.classList.remove('rsvp-on');
+        }
+      }, { passive: true });
+
+      function updateCameraResponsiveness() {
+        const aspect = window.innerWidth / window.innerHeight;
+        camera.aspect = aspect;
+        camera.fov = aspect < 0.65 ? 58 : (aspect < 0.85 ? 53 : 48);
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+      updateCameraResponsiveness();
+      window.addEventListener('resize', updateCameraResponsiveness);
+
+      /* =========================================================
+       * 9. ANIMATION LOOP (60FPS)
+       * ========================================================= */
+      const clock = new THREE.Clock();
+
+      function smoothstep(edge0, edge1, x) {
+        const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+        return t * t * (3 - 2 * t);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const dt = Math.min(clock.getDelta(), 0.05);
+        const elapsed = clock.getElapsedTime();
+
+        openProgress += (targetOpen - openProgress) * Math.min(1, dt * 4.2);
+
+        const hoverBob = Math.sin(elapsed * 2.2) * 0.08;
+        envelopeStage.position.y = ENV_BASE_Y + hoverBob;
+
+        magicalGroundHalo.rotation.z = elapsed * 0.35;
+        const haloPulse = 1.0 + Math.sin(elapsed * 2.8) * 0.06;
+        magicalGroundHalo.scale.set(haloPulse, haloPulse, 1);
+
+        const p1 = smoothstep(0.0, 0.35, openProgress);
+        const p2 = smoothstep(0.35, 0.70, openProgress);
+        const p3 = smoothstep(0.70, 1.00, openProgress);
+
+        flapPivot.rotation.x = -p1 * Math.PI * (170 / 180);
+
+        envPocketGroup.position.y = -p2 * 0.35;
+        envPocketGroup.position.z = -p2 * 1.65;
+        envPocketGroup.rotation.x = -p2 * 0.18;
+
+        letterCardMesh.position.y = -0.04 + (p2 * 1.39) - (p3 * 1.20);
+        letterCardMesh.position.z = p3 * 0.85;
+        letterCardMesh.rotation.x = -p3 * 0.04;
+        const letterScale = 1.0 + p3 * 0.08;
+        letterCardMesh.scale.setScalar(letterScale);
+
+        if (autoSpin && scrollProgress < 0.03) {
+          userYaw += dt * 0.45;
+        } else if (scrollProgress > 0.03) {
+          userYaw *= 0.95;
+          userPitch *= 0.95;
+        }
+
+        const prevSmoothScroll = smoothScroll;
+        smoothScroll += (scrollProgress - smoothScroll) * Math.min(1, dt * 6.0);
+        const scrollSpeed = Math.abs(scrollProgress - smoothScroll);
+
+        const camBase = camSpline.getPointAt(smoothScroll);
+        const lookBase = lookSpline.getPointAt(smoothScroll);
+
+        const tAhead = Math.min(1, smoothScroll + 0.015);
+        const tanNow = camSpline.getTangentAt(smoothScroll);
+        const tanNext = camSpline.getTangentAt(tAhead);
+        const turnRate = tanNext.x - tanNow.x;
+
+        const aspect = window.innerWidth / window.innerHeight;
+        const portraitBack = aspect < 0.75 ? (0.75 - aspect) * 7.2 + 1.45 : 0;
+
+        const offset = new THREE.Vector3(0, userPitch * 2.2, portraitBack + userZoom);
+        offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), userYaw);
+
+        camera.position.copy(camBase).add(offset);
+        camera.lookAt(lookBase);
+        camera.rotation.z += -turnRate * 0.25;
+
+        const catT = Math.min(0.992, smoothScroll + 0.025);
+        const catRoadPos = roadCurve.getPointAt(catT);
+        const catTangent = roadCurve.getTangentAt(catT);
+        const isScrollingNow = scrollSpeed > 0.0018;
+
+        const trotBounce = isScrollingNow ? Math.abs(Math.sin(elapsed * 15)) * 0.14 : Math.sin(elapsed * 2.5) * 0.02;
+        guideCat.position.set(catRoadPos.x, catRoadPos.y + 0.14 + trotBounce, catRoadPos.z);
+
+        if (isScrollingNow) {
+          const dirSign = (scrollProgress >= prevSmoothScroll) ? 1 : -1;
+          const targetLook = catRoadPos.clone().add(catTangent.clone().multiplyScalar(dirSign));
+          guideCat.lookAt(targetLook.x, guideCat.position.y, targetLook.z);
+        } else {
+          guideCat.lookAt(camera.position.x, camera.position.y, camera.position.z);
+        }
+
+        catSpeechBubble.lookAt(camera.position);
+
+        animatedCats.forEach((cat) => {
+          const u = cat.userData;
+          const wagSpeed = (u.isGuide && isScrollingNow) ? 11.0 : 4.5;
+          u.tailPivot.rotation.z = Math.sin(elapsed * wagSpeed + u.phase) * 0.42;
+          u.tailPivot.rotation.x = Math.cos(elapsed * 3.2 + u.phase) * 0.15;
+          u.headGroup.rotation.z = Math.sin(elapsed * 2.2 + u.phase) * 0.08;
+          u.headGroup.rotation.x = Math.sin(elapsed * 1.8 + u.phase) * 0.06;
+
+          if (u.paws && u.paws.length === 4) {
+            if (u.isGuide && isScrollingNow) {
+              const swing = Math.sin(elapsed * 16) * 0.55;
+              u.paws[0].rotation.x = swing;
+              u.paws[1].rotation.x = -swing;
+              u.paws[2].rotation.x = -swing;
+              u.paws[3].rotation.x = swing;
+              u.paws[1].position.y = 0.11;
+              u.paws[1].rotation.z = 0;
+            } else if (u.isGuide) {
+              u.paws[0].rotation.x = 0;
+              u.paws[2].rotation.x = 0;
+              u.paws[3].rotation.x = 0;
+              u.paws[1].position.y = 0.28;
+              u.paws[1].rotation.x = -0.65;
+              u.paws[1].rotation.z = Math.sin(elapsed * 8.5) * 0.35 - 0.25;
+            }
+          }
+
+          if (u.trickTimer > 0) {
+            u.trickTimer = Math.max(0, u.trickTimer - dt * 1.25);
+            const prog = 1.0 - u.trickTimer;
+            const arc = Math.sin(prog * Math.PI);
+
+            if (u.trickType === 1) {
+              u.rig.position.y = arc * 1.15;
+              u.rig.rotation.x = -prog * Math.PI * 2;
+              u.rig.rotation.y = 0;
+            } else if (u.trickType === 2) {
+              u.rig.position.y = arc * 1.35;
+              u.rig.rotation.y = prog * Math.PI * 4;
+              u.rig.rotation.x = 0;
+            } else {
+              u.rig.position.y = Math.abs(Math.sin(prog * Math.PI * 3)) * 0.55;
+              u.rig.rotation.y = prog * Math.PI * 2;
+              u.rig.rotation.z = Math.sin(prog * Math.PI * 4) * 0.25;
+            }
+
+            if (u.trickTimer === 0) {
+              u.rig.position.set(0, 0, 0);
+              u.rig.rotation.set(0, 0, 0);
+            }
+          }
+        });
+
+        animatedButterflies.forEach((bfly) => {
+          const u = bfly.userData;
+          const flap = Math.sin(elapsed * 14 + u.phase) * 0.65;
+          u.leftWing.rotation.y = flap;
+          u.rightWing.rotation.y = -flap;
+          const angle = elapsed * u.speed + u.phase;
+          bfly.position.set(
+            u.basePos.x + Math.cos(angle) * u.radius,
+            u.basePos.y + Math.sin(elapsed * 3 + u.phase) * 0.25,
+            u.basePos.z + Math.sin(angle) * u.radius
+          );
+          bfly.rotation.y = -angle;
+        });
+
+        animatedCouples.forEach((c) => {
+          const u = c.userData;
+          u.groomHead.rotation.z = Math.sin(elapsed * 1.6 + u.phase) * 0.04;
+          u.brideHead.rotation.z = -Math.sin(elapsed * 1.6 + u.phase) * 0.04;
+          u.groomLeftArm.rotation.z = Math.sin(elapsed * 3.0 + u.phase) * 0.15;
+          u.bouquet.position.y = 1.12 + Math.sin(elapsed * 2.4 + u.phase) * 0.03;
+          u.centerHeart.rotation.y = elapsed * 1.8;
+          u.centerHeart.position.y = 2.25 + Math.sin(elapsed * 2.8) * 0.07;
+        });
+
+        floatingRingsGroup.rotation.y = elapsed * 0.9;
+        if (bouncingPin) {
+          bouncingPin.position.y = 2.05 + Math.abs(Math.sin(elapsed * 3.2)) * 0.32;
+          bouncingPin.rotation.y = elapsed * 1.2;
+        }
+
+        for (let i = floatingHearts.length - 1; i >= 0; i--) {
+          const h = floatingHearts[i];
+          h.life -= dt * 0.65;
+          h.mesh.position.y += h.velY * dt;
+          h.mesh.position.x += h.driftX * dt;
+          h.mesh.lookAt(camera.position);
+          h.mesh.material.opacity = Math.max(0, h.life);
+          if (h.life <= 0) {
+            scene.remove(h.mesh);
+            h.mesh.material.dispose();
+            floatingHearts.splice(i, 1);
+          }
+        }
+
+        const pArr = petals.geometry.attributes.position.array;
+        for (let i = 0; i < pCount; i++) {
+          pArr[i * 3 + 1] -= dt * 0.35;
+          pArr[i * 3] += Math.sin(elapsed + i) * 0.004;
+          if (pArr[i * 3 + 1] < -1) pArr[i * 3 + 1] = 13;
+        }
+        petals.geometry.attributes.position.needsUpdate = true;
+
+        let nearest = 0;
+        let bestDiff = Infinity;
+        STOPS.forEach((s, idx) => {
+          const diff = Math.abs(smoothScroll - s.t);
+          if (diff < bestDiff) {
+            bestDiff = diff;
+            nearest = idx;
+          }
+        });
+        if (nearest !== activeStopIdx) {
+          activeStopIdx = nearest;
+          hudStopLabel.textContent = STOPS[nearest].name;
+        }
+        if (performance.now() > customBubbleLockUntil) {
+          updateCatSpeechBubble(STOP_CAT_MESSAGES[activeStopIdx]);
+        }
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    });
+  </script>
+</body>
+</html>
