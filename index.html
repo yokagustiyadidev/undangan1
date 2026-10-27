@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Undangan Pernikahan Taman 3D — Mr Pengantin &amp; Mrs Pengantin</title>
+  <title>Undangan Pernikahan — Mr Pengantin &amp; Mrs Pengantin</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,11 +18,14 @@
 
   <style>
     :root {
-      /* Romantic Sunset Dusk & Deep Botanical Emerald Palette */
-      --sky-top: #3d2235;
-      --sky-mid: #6e3850;
-      --sky-low: #b55d5c;
-      --sky-horizon: #d98a6c;
+      /* Revisi 12: langit biru siang yang lembut (bukan biru elektrik) —
+         biru atas ke biru muda, cakrawala tetap hangat supaya taman mawar dan
+         jalan terakota tetap nyambung. Gampang dikembalikan ke ungu senja
+         kalau yoka tidak suka: kembalikan 4 baris ini ke nilai lama. */
+      --sky-top: #2b5d8f;
+      --sky-mid: #5a90c4;
+      --sky-low: #9cc3e6;
+      --sky-horizon: #f6d9a8;
       --garden-green: #1b4332;
       --rose-accent: #d94b68;
       --gold: #d49b27;
@@ -54,7 +57,7 @@
       height: 100vh;
     }
 
-    /* Fixed 3D Stage */
+    /* Fixed Stage */
     #stage {
       position: fixed;
       inset: 0;
@@ -203,10 +206,10 @@
       text-shadow: 0 2px 10px rgba(25, 10, 18, 0.85);
     }
 
-    /* Subtle Scroll Hint after opening envelope (Does NOT overlap the 3D Letter!) */
+    /* Subtle Scroll Hint after opening envelope (Does NOT overlap the Letter!) */
     .names {
       position: fixed;
-      bottom: 72px;
+      top: 66%;
       left: 16px;
       right: 16px;
       text-align: center;
@@ -372,6 +375,19 @@
       border-color: #fff5d6;
     }
 
+    .hud-btn.rotate-action {
+      background: rgba(212, 155, 39, 0.28);
+      border-color: #f4c44e;
+      color: #fff9e6;
+    }
+
+    .hud-btn.rotate-action.active {
+      background: linear-gradient(135deg, #d49b27 0%, #f4c44e 100%);
+      color: #2b141d;
+      border-color: #ffffff;
+      box-shadow: 0 0 12px rgba(244, 196, 78, 0.6);
+    }
+
     .hud-pill {
       padding: 4px 8px;
       font-size: 11px;
@@ -403,10 +419,11 @@
         font-size: 11px;
       }
       .prompt {
-        bottom: 74px;
+        bottom: 105px; /* Revisi 11: naik di atas tombol 2 baris di HP, supaya baris kedua teks tidak ketutup tombol */
       }
       .names {
-        bottom: 64px;
+        top: 58%;
+        bottom: auto;
       }
       .zoomcluster {
         right: 10px;
@@ -546,7 +563,7 @@
       text-align: center;
     }
 
-    /* Lightbox for 3D Gallery Frames */
+    /* Lightbox for  Gallery Frames */
     #lightbox {
       position: fixed;
       inset: 0;
@@ -571,60 +588,96 @@
 
     #lightbox .frame {
       position: relative;
-      background: #fffcf5;
-      border: 2px solid #d49b27;
-      border-radius: 24px;
-      padding: 16px;
-      max-width: 520px;
+      background: #fffdf9;
+      border: 2px solid #d4af37;
+      border-radius: 26px;
+      padding: 22px 20px 24px;
+      max-width: 560px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 24px 60px rgba(20, 38, 28, 0.55);
+      box-shadow: 0 28px 70px rgba(18, 36, 26, 0.65), 0 0 0 1px rgba(212, 175, 55, 0.35);
+      animation: modalFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.92) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    #lbCounter {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #b37d14;
+      margin-bottom: 6px;
     }
 
     #lbImg {
       width: 100%;
-      height: auto;
-      border-radius: 16px;
-      border: 2px solid rgba(212, 155, 39, 0.5);
+      max-height: 58vh;
+      object-fit: contain;
+      border-radius: 18px;
+      border: 2px solid rgba(212, 175, 55, 0.55);
+      box-shadow: 0 12px 30px rgba(45, 20, 25, 0.2);
       display: block;
+      margin: 0 auto;
     }
 
     #lbCap {
       font-family: "Playfair Display", serif;
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 700;
       color: #3d1e28;
-      margin-top: 12px;
+      margin-top: 14px;
+      line-height: 1.35;
+    }
+
+    #lbSub {
+      font-size: 13px;
+      line-height: 1.55;
+      color: #5c454d;
+      margin-top: 6px;
+      padding: 0 10px;
     }
 
     #lightbox .close,
     #lightbox .nav {
       position: absolute;
-      background: rgba(45, 76, 57, 0.92);
+      background: rgba(33, 58, 43, 0.94);
       border: 1.5px solid #f4c44e;
-      color: #fff;
-      width: 38px;
-      height: 38px;
+      color: #fffdf7;
+      width: 40px;
+      height: 40px;
       border-radius: 999px;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 800;
       cursor: pointer;
       display: grid;
       place-items: center;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    #lightbox .close:hover,
+    #lightbox .nav:hover {
+      background: #336147;
+      border-color: #ffd978;
+      transform: scale(1.08);
     }
 
     #lightbox .close {
-      top: 10px;
-      right: 10px;
+      top: -14px;
+      right: -14px;
     }
 
     #lightbox .nav.prev {
-      left: 24px;
+      left: 14px;
       top: 45%;
     }
 
     #lightbox .nav.next {
-      right: 24px;
+      right: 14px;
       top: 45%;
     }
   </style>
@@ -632,11 +685,11 @@
 <body class="locked">
 
   <div id="stage">
-    <canvas id="scene" aria-label="Undangan Pernikahan Taman Bunga 3D"></canvas>
+    <canvas id="scene" aria-label="Undangan Pernikahan"></canvas>
 
     <div class="topbar fade-ui">
       <div class="badge-group">
-        <div class="badge">🌸 Taman Pernikahan 3D • Raka &amp; Nisa</div>
+        <div class="badge">Undangan Pernikahan • Mr Pengantin &amp; Mrs Pengantin</div>
         <button type="button" class="guest-edit-btn" id="openGuestModalBtn">✎ Ubah Nama Tamu di Surat</button>
       </div>
       <div class="hint">
@@ -646,11 +699,11 @@
     </div>
 
     <div class="names fade-ui" id="names">
-      <p class="sub">✨ Scroll ke Bawah untuk Menyusuri Jalan Taman Bunga Bersama Kucing 3D ↓ ✨</p>
+      <p class="sub">Scroll ke Bawah untuk Menyusuri Jalan Taman Bunga Bersama Kucing ↓</p>
     </div>
 
     <div class="prompt fade-ui" id="prompt">
-      <p class="big">✨ Sebuah Surat Undangan Untukmu ✨</p>
+      <p class="big">Sebuah Surat Undangan Untukmu</p>
       <p class="small">Ketuk amplop di tengah taman untuk mengeluarkan kertas surat undangan</p>
     </div>
 
@@ -660,30 +713,31 @@
     </div>
 
     <div class="controls fade-ui">
-      <button class="btn primary" id="toggleBtn" type="button">✉ Buka Surat Undangan</button>
-      <button class="btn cat-btn" id="heroCatTrickBtn" type="button">🐾 Ajak Main Kucing</button>
+      <button class="btn primary" id="toggleBtn" type="button">Buka Surat Undangan</button>
+      <button class="btn cat-btn" id="heroCatTrickBtn" type="button">Ajak Main Kucing</button>
       <button class="btn" id="spinBtn" type="button" aria-pressed="false">↻ Putar Otomatis</button>
-      <button class="btn" id="startJourneyBtn" type="button">🌸 Masuk ke Taman Bunga ↓</button>
+      <button class="btn" id="startJourneyBtn" type="button">Masuk ke Taman Bunga ↓</button>
     </div>
 
     <!-- Compact Stop Navigation Bar while scrolling -->
-    <div id="journeyHud" aria-label="Navigasi Pos Taman 3D">
+    <div id="journeyHud" aria-label="Navigasi Pos Taman">
       <button type="button" class="hud-btn" id="prevStopBtn">← Mundur</button>
       <span class="hud-pill" id="hudStopLabel">Pos 1 / 7 • Pelaminan Taman</span>
       <button type="button" class="hud-btn" id="nextStopBtn">Maju →</button>
-      <button type="button" class="hud-btn cat-action" id="hudCatTrickBtn">🐾 Ajak Main Kucing</button>
+      <button type="button" class="hud-btn rotate-action" id="hudSpinBtn" title="Putar 360° Scene Ini">↻ Putar Scene</button>
+      <button type="button" class="hud-btn cat-action" id="hudCatTrickBtn">Ajak Main Kucing</button>
     </div>
 
     <!-- RSVP Form at Final Stop -->
     <form id="rsvpBar" autocomplete="off">
       <input id="rsvpName" type="text" maxlength="42" placeholder="Tulis nama &amp; doa restu Anda..." required />
-      <button type="submit">Kirim Doa 3D</button>
+      <button type="submit">Kirim Doa</button>
     </form>
 
     <!-- Toast Notification -->
     <div id="toast" role="status" aria-live="polite">Tersalin!</div>
 
-    <!-- Modal to Edit Guest Name on the 3D Letter -->
+    <!-- Modal to Edit Guest Name on the  Letter -->
     <div id="guestModal" role="dialog" aria-modal="true" aria-label="Ubah Nama Tamu Undangan">
       <form class="modal-box" id="guestForm">
         <h3 class="font-serif text-xl font-bold mb-1">Nama Tamu pada Kertas Surat</h3>
@@ -691,19 +745,21 @@
         <input id="guestInput" type="text" maxlength="38" class="w-full px-4 py-2.5 rounded-full border border-amber-400 text-sm font-bold mb-3 focus:outline-none" placeholder="Contoh: Budi Santoso &amp; Partner" required />
         <div class="flex justify-center gap-2">
           <button type="button" id="cancelGuestBtn" class="px-4 py-2 rounded-full text-xs font-bold bg-stone-200 text-stone-700">Batal</button>
-          <button type="submit" class="px-5 py-2 rounded-full text-xs font-bold bg-amber-500 text-stone-900">Terapkan di Surat 3D</button>
+          <button type="submit" class="px-5 py-2 rounded-full text-xs font-bold bg-amber-500 text-stone-900">Terapkan di Surat</button>
         </div>
       </form>
     </div>
 
-    <!-- Lightbox for 3D Gallery Frames -->
-    <div id="lightbox" role="dialog" aria-modal="true" aria-label="Pratinjau foto galeri 3D">
+    <!-- Lightbox for Gallery Frames -->
+    <div id="lightbox" role="dialog" aria-modal="true" aria-label="Pratinjau foto galeri">
       <div class="frame">
         <button class="close" id="lbClose" type="button" aria-label="Tutup">✕</button>
         <button class="nav prev" id="lbPrev" type="button" aria-label="Foto sebelumnya">‹</button>
-        <img id="lbImg" alt="Foto galeri pernikahan" src="https://placehold.co/600x400/e07a5f/fffdf9?text=Galeri+Taman+3D" />
+        <div id="lbCounter">Momen 1 dari 6</div>
+        <img id="lbImg" alt="Foto galeri pernikahan" />
         <button class="nav next" id="lbNext" type="button" aria-label="Foto berikutnya">›</button>
         <div class="cap" id="lbCap"></div>
+        <div id="lbSub"></div>
       </div>
     </div>
   </div>
@@ -801,7 +857,7 @@
         alpha: true,
         powerPreference: 'high-performance'
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.75));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75)); // Revisi 7: mobile tidak lagi dibatasi 1.25
       renderer.setSize(window.innerWidth, window.innerHeight);
       // Real-time shadows only on desktop; mobile uses baked soft contact shadows for 60FPS
       renderer.shadowMap.enabled = !isMobile;
@@ -813,12 +869,12 @@
       renderer.toneMappingExposure = 0.92;
 
       const scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x6e3850, 0.0082);
+      scene.fog = new THREE.FogExp2(0x5a90c4, 0.0082); // Revisi 12: kabut ikut biru supaya tidak ungu di langit biru
 
       const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 210);
 
       // Warm Cream Sky + Warm Wood-Brown Ground Bounce (NO green bounce on human skin!)
-      const hemiLight = new THREE.HemisphereLight(0xffe8d6, 0x6b4438, 0.88);
+      const hemiLight = new THREE.HemisphereLight(0xcfe4ff, 0x6b4438, 0.88); // Revisi 12: cahaya langit ikut biru, pantulan tanah tetap hangat
       scene.add(hemiLight);
 
       const sunLight = new THREE.DirectionalLight(0xffdfba, 1.05);
@@ -840,7 +896,7 @@
        * 2. CANVAS TEXTURE, SOFT CONTACT SHADOW & FLOATING TEXT
        * ========================================================= */
       function makeTexture(drawFn, w = 1024, h = 512) {
-        const scale = isMobile ? 0.75 : 1.0;
+        const scale = isMobile ? 1.35 : 1.0; // Revisi 7: tekstur mobile dibuat LEBIH HD dari desktop, bukan lebih rendah
         const cw = Math.max(256, Math.round(w * scale));
         const ch = Math.max(128, Math.round(h * scale));
         const c = document.createElement('canvas');
@@ -853,7 +909,7 @@
         ctx.restore();
         const tex = new THREE.CanvasTexture(c);
         tex.encoding = THREE.sRGBEncoding;
-        tex.anisotropy = isMobile ? 1 : 4;
+        tex.anisotropy = 4; // Revisi 7: anisotropy penuh di mobile agar teks miring tidak blur
         return tex;
       }
 
@@ -957,7 +1013,7 @@
       }
 
       /* =========================================================
-       * 3. 3D CHARACTERS: KUCING 3D INTERAKTIF, MEMPELAI 3D & KUPU-KUPU
+       * 3. CHARACTERS: KUCING INTERAKTIF, MEMPELAI & KUPU-KUPU
        * ========================================================= */
       const animatedCats = [];
       const animatedCouples = [];
@@ -1004,7 +1060,7 @@
       const sharedWingGeo = new THREE.CircleGeometry(0.14, 10);
       sharedWingGeo.scale(1.2, 0.85, 1);
 
-      function createButterfly3D(colorHex = 0xff85a1) {
+      function createButterfly(colorHex = 0xff85a1) {
         const group = new THREE.Group();
         const wingMat = new THREE.MeshStandardMaterial({
           color: colorHex,
@@ -1030,12 +1086,12 @@
         return group;
       }
 
-      // Upgraded 3D Cat Builder with Articulated Paws, Rig & Speech Bubble Support
-      function createCat3D(options = {}) {
+      // Upgraded  Cat Builder with Articulated Paws, Rig & Speech Bubble Support
+      function createCat(options = {}) {
         const furColor = options.color !== undefined ? options.color : 0xf49742;
         const stripeColor = options.stripeColor !== undefined ? options.stripeColor : 0xc96b22;
         const scale = options.scale || 1.0;
-        const label = options.label || 'Meow! Doakan Mr & Mrs Pengantin bahagia selalu ya 🐾';
+        const label = options.label || 'Meow! Doakan Mr & Mrs Pengantin bahagia selalu ya';
 
         const cat = new THREE.Group();
         cat.scale.setScalar(scale);
@@ -1200,190 +1256,387 @@
         return cat;
       }
 
-      // 3D Bride & Groom Builder (Warm Peach Natural Skin & Contact Shadows)
-      function createCouple3D(options = {}) {
+      //  Bride & Groom Builder (Warm Natural Skin, Tailored Tuxedo with Legs & Shoes, Multi-tiered Flowing Gown, Hands & Bouquet)
+      function createCouple(options = {}) {
         const scale = options.scale || 1.0;
         const couple = new THREE.Group();
         couple.scale.setScalar(scale);
 
-        couple.add(createContactShadow(1.35, 0.02));
+        // Ground Contact Shadows for both Groom and Bride
+        couple.add(createContactShadow(1.6, 0.015));
 
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xffd2b8, roughness: 0.6, emissive: 0x3d1e14, emissiveIntensity: 0.08 });
+        const skinMat = new THREE.MeshStandardMaterial({
+          color: 0xffd5bf,
+          roughness: 0.55,
+          emissive: 0x3d1e14,
+          emissiveIntensity: 0.06
+        });
         const blushMat = new THREE.MeshStandardMaterial({ color: 0xf48fb1, roughness: 0.5 });
-        const eyeMat = new THREE.MeshStandardMaterial({ color: 0x22181c, roughness: 0.2 });
+        const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1a1215, roughness: 0.2 });
         const coralMat = new THREE.MeshStandardMaterial({ color: 0xd94b68, roughness: 0.35 });
-        const goldMat = new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.25, metalness: 0.65 });
-        const gownMat = new THREE.MeshStandardMaterial({ color: 0xfffcf5, roughness: 0.4 });
-        const suitMat = new THREE.MeshStandardMaterial({ color: 0x2b2226, roughness: 0.45 });
-        const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xfffaf5, roughness: 0.4 });
-        const darkHairMat = new THREE.MeshStandardMaterial({ color: 0x2b1c20, roughness: 0.5 });
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.25, metalness: 0.75 });
+        const gownMat = new THREE.MeshStandardMaterial({ color: 0xfffcf5, roughness: 0.38 });
+        const laceMat = new THREE.MeshStandardMaterial({ color: 0xfff8ee, roughness: 0.45 });
+        const suitMat = new THREE.MeshStandardMaterial({ color: 0x1e242d, roughness: 0.45 });
+        const lapelMat = new THREE.MeshStandardMaterial({ color: 0x14181f, roughness: 0.25 });
+        const trouserMat = new THREE.MeshStandardMaterial({ color: 0x181d24, roughness: 0.5 });
+        const shoeMat = new THREE.MeshStandardMaterial({ color: 0x111317, roughness: 0.2, metalness: 0.3 });
+        const whiteShirtMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+        const darkHairMat = new THREE.MeshStandardMaterial({ color: 0x24181c, roughness: 0.5 });
         const leafMat = new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.6 });
-        const veilMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+        const veilMat = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          roughness: 0.2,
+          transparent: true,
+          opacity: 0.58,
+          side: THREE.DoubleSide
+        });
 
-        // Groom (Left)
+        // ==========================================
+        // 1. GROOM (MEMPELAI PRIA - LEFT)
+        // Complete with Formal Shoes, Tailored Trousers,
+        // Tuxedo Jacket, Collar, Tie, Boutonniere & Hands
+        // ==========================================
         const groom = new THREE.Group();
-        groom.position.set(-0.62, 0, 0);
+        groom.position.set(-0.65, 0, 0);
         couple.add(groom);
 
-        const gBody = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 1.15, 18), suitMat);
-        gBody.position.set(0, 0.72, 0);
-        gBody.castShadow = true;
-        groom.add(gBody);
+        // Shoes (Left & Right Formal Dress Shoes)
+        [-0.125, 0.125].forEach((sx) => {
+          const shoe = new THREE.Group();
+          shoe.position.set(sx, 0.045, 0.03);
+          const shoeBase = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.25), shoeMat);
+          shoeBase.castShadow = true;
+          shoe.add(shoeBase);
+          const shoeTip = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.12, 12), shoeMat);
+          shoeTip.rotation.z = Math.PI / 2;
+          shoeTip.position.set(0, -0.01, 0.11);
+          shoe.add(shoeTip);
+          const heel = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.04, 0.08), shoeMat);
+          heel.position.set(0, -0.03, -0.08);
+          shoe.add(heel);
+          groom.add(shoe);
+        });
 
-        const gTie = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.32, 0.05), coralMat);
-        gTie.position.set(0, 1.15, 0.15);
+        // Trouser Legs (Left & Right Full Pants)
+        [-0.125, 0.125].forEach((lx) => {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.085, 0.64, 16), trouserMat);
+          leg.position.set(lx, 0.41, 0.01);
+          leg.castShadow = true;
+          groom.add(leg);
+        });
+
+        // Pelvis & Belt
+        const pelvis = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.23, 0.18, 18), trouserMat);
+        pelvis.position.set(0, 0.72, 0);
+        pelvis.castShadow = true;
+        groom.add(pelvis);
+
+        const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.245, 0.245, 0.04, 20), shoeMat);
+        belt.position.set(0, 0.79, 0);
+        groom.add(belt);
+
+        const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.05, 0.03), goldMat);
+        buckle.position.set(0, 0.79, 0.24);
+        groom.add(buckle);
+
+        // Tuxedo Jacket
+        const jacket = new THREE.Mesh(new THREE.CylinderGeometry(0.255, 0.235, 0.62, 18), suitMat);
+        jacket.position.set(0, 1.10, 0);
+        jacket.castShadow = true;
+        groom.add(jacket);
+
+        // White Shirt Insert & Lapels
+        const shirtV = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.38, 0.04), whiteShirtMat);
+        shirtV.position.set(0, 1.25, 0.23);
+        groom.add(shirtV);
+
+        [-1, 1].forEach((s) => {
+          const lapel = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.38, 0.04), lapelMat);
+          lapel.position.set(s * 0.08, 1.25, 0.235);
+          lapel.rotation.z = -s * 0.18;
+          groom.add(lapel);
+        });
+
+        // Bow Tie / Coral Tie
+        const gTie = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.26, 0.04), coralMat);
+        gTie.position.set(0, 1.28, 0.255);
         groom.add(gTie);
 
+        const tieKnot = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), coralMat);
+        tieKnot.position.set(0, 1.38, 0.26);
+        groom.add(tieKnot);
+
+        // Boutonniere (Pocket Flower)
+        const boutonniere = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), coralMat);
+        boutonniere.position.set(-0.13, 1.28, 0.24);
+        groom.add(boutonniere);
+
+        // Gold Buttons
+        [1.08, 0.98, 0.88].forEach((by) => {
+          const btn = new THREE.Mesh(new THREE.SphereGeometry(0.016, 6, 6), goldMat);
+          btn.position.set(0, by, 0.25);
+          groom.add(btn);
+        });
+
+        // Groom Arms & Hands (Natural, graceful pose with smooth shoulder joints - no broken joints)
         const groomLeftArm = new THREE.Group();
-        groomLeftArm.position.set(-0.28, 1.25, 0);
-        const gArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.58, 12), suitMat);
-        gArm.position.y = -0.22;
-        gArm.rotation.z = 0.25;
-        groomLeftArm.add(gArm);
+        groomLeftArm.position.set(-0.28, 1.34, 0.02);
+        groomLeftArm.rotation.z = 0.10;
+
+        const gShoulderL = new THREE.Mesh(new THREE.SphereGeometry(0.068, 12, 10), suitMat);
+        groomLeftArm.add(gShoulderL);
+        const gArmL = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.054, 0.50, 12), suitMat);
+        gArmL.position.y = -0.25;
+        groomLeftArm.add(gArmL);
+        const gCuffL = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.056, 0.05, 12), whiteShirtMat);
+        gCuffL.position.y = -0.50;
+        groomLeftArm.add(gCuffL);
+        const gHandL = new THREE.Mesh(new THREE.SphereGeometry(0.046, 10, 8), skinMat);
+        gHandL.scale.set(0.85, 1.1, 0.65);
+        gHandL.position.y = -0.55;
+        groomLeftArm.add(gHandL);
         groom.add(groomLeftArm);
 
-        const gRightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.58, 12), suitMat);
-        gRightArm.position.set(0.28, 1.25, 0);
-        gRightArm.rotation.z = -0.25;
-        groom.add(gRightArm);
+        // Groom Right Arm (mirrored group, natural resting pose)
+        const groomRightArm = new THREE.Group();
+        groomRightArm.position.set(0.28, 1.34, 0.02);
+        groomRightArm.rotation.z = -0.10;
+
+        const gShoulderR = new THREE.Mesh(new THREE.SphereGeometry(0.068, 12, 10), suitMat);
+        groomRightArm.add(gShoulderR);
+        const gArmR = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.054, 0.50, 12), suitMat);
+        gArmR.position.y = -0.25;
+        groomRightArm.add(gArmR);
+        const gCuffR = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.056, 0.05, 12), whiteShirtMat);
+        gCuffR.position.y = -0.50;
+        groomRightArm.add(gCuffR);
+        const gHandR = new THREE.Mesh(new THREE.SphereGeometry(0.046, 10, 8), skinMat);
+        gHandR.scale.set(0.85, 1.1, 0.65);
+        gHandR.position.y = -0.55;
+        groomRightArm.add(gHandR);
+        groom.add(groomRightArm);
+
+        // Groom Neck & Head
+        const gNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.085, 0.12, 14), skinMat);
+        gNeck.position.set(0, 1.45, 0.02);
+        groom.add(gNeck);
 
         const groomHead = new THREE.Group();
-        groomHead.position.set(0, 1.82, 0.02);
+        groomHead.position.set(0, 1.68, 0.02);
         groom.add(groomHead);
 
-        const gFace = new THREE.Mesh(new THREE.SphereGeometry(0.25, 22, 18), skinMat);
+        const gFace = new THREE.Mesh(new THREE.SphereGeometry(0.245, 22, 18), skinMat);
         gFace.castShadow = true;
         groomHead.add(gFace);
 
         const gHair = new THREE.Mesh(new THREE.SphereGeometry(0.26, 20, 16), darkHairMat);
-        gHair.scale.set(1.05, 0.88, 1.05);
+        gHair.scale.set(1.06, 0.92, 1.06);
         gHair.position.set(0, 0.08, -0.02);
         groomHead.add(gHair);
 
         [-1, 1].forEach((s) => {
           const eye = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 10), eyeMat);
-          eye.position.set(s * 0.085, 0.03, 0.235);
+          eye.position.set(s * 0.085, 0.025, 0.23);
           groomHead.add(eye);
 
-          const blush = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), blushMat);
+          const shine = new THREE.Mesh(new THREE.SphereGeometry(0.011, 6, 6), whiteShirtMat);
+          shine.position.set(s * 0.085 + 0.01, 0.038, 0.252);
+          groomHead.add(shine);
+
+          const blush = new THREE.Mesh(new THREE.SphereGeometry(0.034, 10, 8), blushMat);
           blush.scale.set(1.2, 0.65, 0.4);
-          blush.position.set(s * 0.14, -0.025, 0.215);
+          blush.position.set(s * 0.135, -0.025, 0.21);
           groomHead.add(blush);
         });
+
         const gSmile = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.012, 8, 16, Math.PI), coralMat);
         gSmile.rotation.x = Math.PI;
-        gSmile.position.set(0, -0.05, 0.242);
+        gSmile.position.set(0, -0.05, 0.238);
         groomHead.add(gSmile);
 
-        // Bride (Right)
+        // ==========================================
+        // 2. BRIDE (MEMPELAI WANITA - RIGHT)
+        // Complete with Multilayered Flowing Bridal Gown,
+        // Peeking Shoes, Tiara, Veil & Hands holding Bouquet
+        // ==========================================
         const bride = new THREE.Group();
-        bride.position.set(0.62, 0, 0);
+        bride.position.set(0.65, 0, 0);
         couple.add(bride);
 
-        const skirtBottom = new THREE.Mesh(new THREE.ConeGeometry(0.76, 1.18, 28), gownMat);
-        skirtBottom.position.set(0, 0.58, 0);
-        skirtBottom.castShadow = true;
-        bride.add(skirtBottom);
+        // Bridal Shoes Peeking at Ground
+        [-0.08, 0.08].forEach((bx) => {
+          const bShoe = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), laceMat);
+          bShoe.scale.set(1, 0.7, 1.5);
+          bShoe.position.set(bx, 0.035, 0.38);
+          bride.add(bShoe);
+        });
 
-        const waistBelt = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.03, 12, 24), goldMat);
-        waistBelt.rotation.x = Math.PI / 2;
-        waistBelt.position.set(0, 1.08, 0);
-        bride.add(waistBelt);
+        // Multilayered Bridal Gown (No hollow cone or amputated look!)
+        // Lower flared bell skirt
+        const skirtLower = new THREE.Mesh(new THREE.CylinderGeometry(0.40, 0.82, 0.66, 30), gownMat);
+        skirtLower.position.set(0, 0.33, 0);
+        skirtLower.castShadow = true;
+        bride.add(skirtLower);
 
-        const hemTrim = new THREE.Mesh(new THREE.TorusGeometry(0.74, 0.025, 10, 28), goldMat);
+        // Lace Hem Trim at the base
+        const hemTrim = new THREE.Mesh(new THREE.TorusGeometry(0.81, 0.03, 12, 32), laceMat);
         hemTrim.rotation.x = Math.PI / 2;
-        hemTrim.position.set(0, 0.04, 0);
+        hemTrim.position.set(0, 0.03, 0);
         bride.add(hemTrim);
 
-        const bodice = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.22, 0.52, 18), gownMat);
-        bodice.scale.set(1.04, 1, 0.82);
-        bodice.position.set(0, 1.32, 0);
+        // Middle Flared Skirt
+        const skirtUpper = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.42, 0.46, 26), gownMat);
+        skirtUpper.position.set(0, 0.82, 0);
+        skirtUpper.castShadow = true;
+        bride.add(skirtUpper);
+
+        // Gold Embroidered Waist Belt & Sash
+        const waistBelt = new THREE.Mesh(new THREE.TorusGeometry(0.245, 0.026, 12, 24), goldMat);
+        waistBelt.rotation.x = Math.PI / 2;
+        waistBelt.position.set(0, 1.05, 0);
+        bride.add(waistBelt);
+
+        const sashBow = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), goldMat);
+        sashBow.scale.set(1.4, 0.7, 0.8);
+        sashBow.position.set(0, 1.05, -0.24);
+        bride.add(sashBow);
+
+        // Sweetheart Corset / Bodice
+        const bodice = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.23, 0.36, 20), gownMat);
+        bodice.scale.set(1.04, 1, 0.85);
+        bodice.position.set(0, 1.23, 0);
         bodice.castShadow = true;
         bride.add(bodice);
 
+        // Pearl Necklace
+        const necklace = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.016, 8, 20, Math.PI), goldMat);
+        necklace.position.set(0, 1.39, 0.16);
+        necklace.rotation.x = 0.55;
+        bride.add(necklace);
+
+        // Bride Neck & Head
+        const bNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.08, 0.12, 14), skinMat);
+        bNeck.position.set(0, 1.45, 0.02);
+        bride.add(bNeck);
+
+        const brideHead = new THREE.Group();
+        brideHead.position.set(0, 1.68, 0.02);
+        bride.add(brideHead);
+
+        const bFace = new THREE.Mesh(new THREE.SphereGeometry(0.255, 22, 18), skinMat);
+        bFace.castShadow = true;
+        brideHead.add(bFace);
+
+        const bHair = new THREE.Mesh(new THREE.SphereGeometry(0.27, 20, 16), darkHairMat);
+        bHair.scale.set(1.04, 0.94, 1.04);
+        bHair.position.set(0, 0.06, -0.03);
+        brideHead.add(bHair);
+
+        const bun = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 14), darkHairMat);
+        bun.position.set(0, 0.23, -0.15);
+        brideHead.add(bun);
+
+        const tiara = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.024, 10, 24, Math.PI), goldMat);
+        tiara.rotation.x = -Math.PI / 3;
+        tiara.position.set(0, 0.23, 0.10);
+        brideHead.add(tiara);
+
+        const tiaraGem = new THREE.Mesh(new THREE.OctahedronGeometry(0.045), coralMat);
+        tiaraGem.position.set(0, 0.29, 0.18);
+        brideHead.add(tiaraGem);
+
+        // Flowing Sheer Veil
+        const veil = new THREE.Mesh(
+          new THREE.ConeGeometry(0.58, 1.45, 20, 1, true, Math.PI * 0.85, Math.PI * 1.3),
+          veilMat
+        );
+        veil.position.set(0, -0.42, -0.16);
+        brideHead.add(veil);
+
         [-1, 1].forEach((s) => {
-          const bArm = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.058, 0.56, 12), skinMat);
-          bArm.position.set(s * 0.28, 1.28, 0.14);
-          bArm.rotation.z = s * 0.42;
-          bArm.rotation.x = -0.65;
-          bride.add(bArm);
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 10), eyeMat);
+          eye.position.set(s * 0.088, 0.025, 0.24);
+          brideHead.add(eye);
+
+          const shine = new THREE.Mesh(new THREE.SphereGeometry(0.011, 6, 6), whiteShirtMat);
+          shine.position.set(s * 0.088 + 0.01, 0.038, 0.262);
+          brideHead.add(shine);
+
+          const blush = new THREE.Mesh(new THREE.SphereGeometry(0.036, 10, 8), blushMat);
+          blush.scale.set(1.2, 0.65, 0.4);
+          blush.position.set(s * 0.14, -0.025, 0.22);
+          brideHead.add(blush);
         });
 
+        const bSmile = new THREE.Mesh(new THREE.TorusGeometry(0.048, 0.012, 8, 16, Math.PI), coralMat);
+        bSmile.rotation.x = Math.PI;
+        bSmile.position.set(0, -0.05, 0.248);
+        brideHead.add(bSmile);
+
+        // Bride Arms & Hands (Both holding the Bouquet)
+        [-1, 1].forEach((s) => {
+          const armGroup = new THREE.Group();
+          armGroup.position.set(s * 0.29, 1.28, 0.06);
+
+          const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.055, 0.32, 12), skinMat);
+          upper.position.set(0, -0.13, 0);
+          upper.rotation.z = s * 0.24;
+          upper.rotation.x = -0.55;
+          armGroup.add(upper);
+
+          const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.048, 0.26, 12), skinMat);
+          lower.position.set(-s * 0.07, -0.26, 0.18);
+          lower.rotation.x = -1.25;
+          lower.rotation.y = -s * 0.55;
+          armGroup.add(lower);
+
+          // Delicate Bride Hand
+          const hand = new THREE.Mesh(new THREE.SphereGeometry(0.038, 10, 8), skinMat);
+          hand.scale.set(0.9, 1.2, 0.7);
+          hand.position.set(-s * 0.15, -0.28, 0.34);
+          armGroup.add(hand);
+
+          bride.add(armGroup);
+        });
+
+        // Lavish Rose Bouquet
         const bouquet = new THREE.Group();
-        bouquet.position.set(0, 1.12, 0.36);
+        bouquet.position.set(0, 1.05, 0.38);
         bride.add(bouquet);
 
-        const stem = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.26, 12), leafMat);
-        stem.rotation.x = Math.PI;
-        stem.position.y = -0.08;
-        bouquet.add(stem);
+        const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.22, 10), laceMat);
+        handle.rotation.x = -0.3;
+        handle.position.y = -0.06;
+        bouquet.add(handle);
 
-        const bouquetDome = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 12), leafMat);
-        bouquetDome.position.y = 0.05;
+        const ribbon = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.02, 8, 16), coralMat);
+        ribbon.position.set(0, -0.04, 0);
+        bouquet.add(ribbon);
+
+        const bouquetDome = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 12), leafMat);
+        bouquetDome.position.y = 0.06;
         bouquet.add(bouquetDome);
 
         [
-          [0, 0.14, 0.06, 0xff5c77],
-          [-0.09, 0.10, 0.08, 0xffb3c1],
-          [0.09, 0.10, 0.08, 0xf4b942],
-          [-0.06, 0.15, -0.04, 0xfff0f3],
-          [0.06, 0.15, -0.04, 0xff5c77],
-          [0, 0.08, 0.13, 0xfff0f3]
+          [0, 0.16, 0.06, 0xff4d6d],
+          [-0.10, 0.11, 0.09, 0xff8da1],
+          [0.10, 0.11, 0.09, 0xf4b942],
+          [-0.07, 0.16, -0.05, 0xfff0f3],
+          [0.07, 0.16, -0.05, 0xff4d6d],
+          [0, 0.09, 0.15, 0xfff0f3],
+          [0, 0.21, 0, 0xff8da1]
         ].forEach((r) => {
           const rose = new THREE.Mesh(
-            new THREE.SphereGeometry(0.065, 10, 10),
+            new THREE.SphereGeometry(0.07, 10, 10),
             new THREE.MeshStandardMaterial({ color: r[3], roughness: 0.35 })
           );
           rose.position.set(r[0], r[1], r[2]);
           bouquet.add(rose);
         });
 
-        const brideHead = new THREE.Group();
-        brideHead.position.set(0, 1.88, 0.02);
-        bride.add(brideHead);
-
-        const bFace = new THREE.Mesh(new THREE.SphereGeometry(0.265, 22, 18), skinMat);
-        bFace.castShadow = true;
-        brideHead.add(bFace);
-
-        const bHair = new THREE.Mesh(new THREE.SphereGeometry(0.28, 20, 16), darkHairMat);
-        bHair.scale.set(1.04, 0.92, 1.04);
-        bHair.position.set(0, 0.06, -0.03);
-        brideHead.add(bHair);
-
-        const bun = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 14), darkHairMat);
-        bun.position.set(0, 0.24, -0.14);
-        brideHead.add(bun);
-
-        const tiara = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.024, 10, 24, Math.PI), goldMat);
-        tiara.rotation.x = -Math.PI / 3;
-        tiara.position.set(0, 0.24, 0.10);
-        brideHead.add(tiara);
-
-        const tiaraGem = new THREE.Mesh(new THREE.OctahedronGeometry(0.045), coralMat);
-        tiaraGem.position.set(0, 0.30, 0.18);
-        brideHead.add(tiaraGem);
-
-        const veil = new THREE.Mesh(new THREE.ConeGeometry(0.58, 1.45, 20, 1, true, Math.PI * 0.85, Math.PI * 1.3), veilMat);
-        veil.position.set(0, -0.42, -0.16);
-        brideHead.add(veil);
-
-        [-1, 1].forEach((s) => {
-          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 10), eyeMat);
-          eye.position.set(s * 0.09, 0.03, 0.245);
-          brideHead.add(eye);
-
-          const blush = new THREE.Mesh(new THREE.SphereGeometry(0.038, 10, 8), blushMat);
-          blush.scale.set(1.2, 0.65, 0.4);
-          blush.position.set(s * 0.145, -0.025, 0.225);
-          brideHead.add(blush);
-        });
-        const bSmile = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 8, 16, Math.PI), coralMat);
-        bSmile.rotation.x = Math.PI;
-        bSmile.position.set(0, -0.055, 0.252);
-        brideHead.add(bSmile);
-
-        const centerHeart = new THREE.Mesh(new THREE.OctahedronGeometry(0.14), goldMat);
+        // Floating Golden Center Heart
+        const centerHeart = new THREE.Mesh(new THREE.OctahedronGeometry(0.15), goldMat);
         centerHeart.position.set(0, 2.25, 0.15);
         couple.add(centerHeart);
 
@@ -1393,6 +1646,7 @@
           groomHead,
           brideHead,
           groomLeftArm,
+          groomRightArm,
           bouquet,
           centerHeart,
           phase: Math.random() * Math.PI * 2
@@ -1410,7 +1664,7 @@
         {
           id: 0,
           t: 0.0,
-          name: 'Surat Undangan & Kucing 3D',
+          name: 'Surat Undangan & Kucing',
           pos: new THREE.Vector3(0, 0, 0),
           camPos: new THREE.Vector3(0, 3.55, 7.6),
           lookAt: new THREE.Vector3(0, 3.35, 0)
@@ -1507,7 +1761,7 @@
       sharedPetalGeo.scale(1.1, 0.5, 1.4);
       const sharedPetalMats = flowerColors.map((col) => new THREE.MeshStandardMaterial({ color: col, roughness: 0.35 }));
 
-      function createFlowerCluster3D() {
+      function createFlowerCluster() {
         const cluster = new THREE.Group();
         const leafBase = new THREE.Mesh(sharedLeafBaseGeo, stemMat);
         leafBase.position.y = 0.1;
@@ -1567,25 +1821,61 @@
 
         const roadTubularSegs = isMobile ? 160 : 240;
         const roadRadialSegs = isMobile ? 8 : 12;
-        const tubeGeo = new THREE.TubeGeometry(roadCurve, roadTubularSegs, 1.65, roadRadialSegs, false);
+        const tubeGeo = new THREE.TubeGeometry(roadCurve, roadTubularSegs, 1.55, roadRadialSegs, false);
         const pos = tubeGeo.attributes.position;
         const ringVerts = roadRadialSegs + 1;
         for (let i = 0; i < pos.count; i++) {
           const u = Math.min(1, Math.floor(i / ringVerts) / roadTubularSegs);
           const pt = roadCurve.getPointAt(u);
           const dy = pos.getY(i) - pt.y;
-          pos.setY(i, pt.y + dy * 0.1);
+          pos.setY(i, pt.y + dy * 0.045);
         }
         tubeGeo.computeVertexNormals();
 
+        // Jalan setapak tenang (pengganti karpet merah): warna terakota-mawar redup dan datar,
+        // tanpa medali emas, tanpa bordir, tanpa garis tenun — supaya nyaman dilihat saat scroll.
+        // Gradasi dibuat searah keliling tabung (vertikal kanvas), bukan sepanjang jalan,
+        // jadi tidak ada pola yang berulang-ulang di sepanjang lintasan.
+        const redCarpetTex = makeTexture((ctx, w, h) => {
+          const softGrad = ctx.createLinearGradient(0, 0, 0, h);
+          softGrad.addColorStop(0.00, '#9c5a52');
+          softGrad.addColorStop(0.50, '#a8665c');
+          softGrad.addColorStop(1.00, '#96544d');
+          ctx.fillStyle = softGrad;
+          ctx.fillRect(0, 0, w, h);
+        }, 512, 512);
+
+        redCarpetTex.wrapS = THREE.RepeatWrapping;
+        redCarpetTex.wrapT = THREE.RepeatWrapping;
+        redCarpetTex.repeat.set(1, 1); // tanpa pengulangan pola
+
         const roadMat = new THREE.MeshStandardMaterial({
-          color: 0xebd29d,
-          roughness: 0.58,
-          metalness: 0.14
+          map: redCarpetTex,
+          color: 0xffffff,
+          roughness: 0.88,
+          metalness: 0.0
         });
         const road = new THREE.Mesh(tubeGeo, roadMat);
         road.receiveShadow = !isMobile;
         world.add(road);
+
+        // Shared Romantic Rose Petal Geometries & Materials along the Carpet
+        const petalGeo = new THREE.SphereGeometry(0.12, 6, 4);
+        petalGeo.scale(1.5, 0.22, 1.1);
+
+        const petalMats = [
+          new THREE.MeshStandardMaterial({ color: 0xb81832, roughness: 0.65 }), // Ruby Red
+          new THREE.MeshStandardMaterial({ color: 0xfca5b8, roughness: 0.6 }),  // Blush Pink
+          new THREE.MeshStandardMaterial({ color: 0xfff0ea, roughness: 0.6 })   // Ivory White
+        ];
+
+        // Slender Golden Wedding Stanchion Post along the Carpet Edges
+        const stanchionPoleGeo = new THREE.CylinderGeometry(0.035, 0.045, 0.85, 8);
+        const stanchionCapGeo = new THREE.SphereGeometry(0.08, 10, 8);
+        const stanchionBaseGeo = new THREE.CylinderGeometry(0.14, 0.16, 0.05, 12);
+        const goldStanchionMat = new THREE.MeshStandardMaterial({ color: 0xdfb14e, metalness: 0.75, roughness: 0.22 });
+        const lanternBulbGeo = new THREE.SphereGeometry(0.07, 8, 8);
+        const lanternBulbMat = new THREE.MeshBasicMaterial({ color: 0xffec9e });
 
         const poleGeo = new THREE.CylinderGeometry(0.04, 0.05, 1.5, 6);
         const poleMat = new THREE.MeshStandardMaterial({ color: 0x2d1b18, roughness: 0.7 });
@@ -1593,7 +1883,7 @@
         const bulbMat = new THREE.MeshBasicMaterial({ color: 0xffe8a3 });
         const trunkGeo = new THREE.CylinderGeometry(0.16, 0.26, 2.0, 8);
         const trunkMat = new THREE.MeshStandardMaterial({ color: 0x4a2f27, roughness: 0.85 });
-        const crownGeo = new THREE.SphereGeometry(1.35, 10, 8);
+        const crownGeo = new THREE.SphereGeometry(1.05, 10, 8); // Revisi 2: tajuk pohon diperkecil agar tak menutupi teks
         crownGeo.scale(1.15, 0.9, 1.15);
         const sakuraMat = new THREE.MeshStandardMaterial({ color: 0xf49cbb, roughness: 0.55 });
         const leafCrownMat = new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.7 });
@@ -1603,10 +1893,19 @@
         for (let a = 0; a < heroFlowerCount; a++) {
           const ang = (a / heroFlowerCount) * Math.PI * 2;
           const rad = 3.5 + (a % 3) * 1.4;
-          const fc = createFlowerCluster3D();
+          const fc = createFlowerCluster();
           fc.position.set(Math.cos(ang) * rad, -1.0, Math.sin(ang) * rad - 0.5);
           fc.scale.setScalar(1.1 + (a % 2) * 0.35);
           world.add(fc);
+
+          // Starting rose petal clusters around entrance
+          if (a % 2 === 0) {
+            const pStart = new THREE.Mesh(petalGeo, petalMats[a % petalMats.length]);
+            pStart.position.set(Math.cos(ang + 0.15) * (rad - 0.7), -0.96, Math.sin(ang + 0.15) * (rad - 0.7));
+            pStart.rotation.y = a * 1.1;
+            pStart.scale.setScalar(0.95 + (a % 3) * 0.2);
+            world.add(pStart);
+          }
         }
 
         const totalSteps = isMobile ? 95 : 140;
@@ -1617,8 +1916,41 @@
           const norm = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
           const side = (i % 2 === 0) ? 1 : -1;
 
+          // Romantic Rose Petals scattered softly along the Red Carpet Edges (replacing harsh boulders!)
+          const petalSide = (i % 2 === 0) ? 1 : -1;
+          const petalDist = 1.58 + ((i * 13) % 5) * 0.05;
+          const petalPos = pt.clone().add(norm.clone().multiplyScalar(petalSide * petalDist));
+          const pMesh = new THREE.Mesh(petalGeo, petalMats[i % petalMats.length]);
+          pMesh.position.set(petalPos.x, pt.y - 0.02, petalPos.z);
+          pMesh.rotation.y = (i * 1.4) % Math.PI;
+          pMesh.rotation.z = ((i % 4) - 2) * 0.06;
+          pMesh.scale.setScalar(0.9 + (i % 3) * 0.2);
+          world.add(pMesh);
+
+          // Elegant Golden Wedding Stanchions with Lantern Caps every 6 paces
+          if (i % 6 === 0) {
+            const stanchionSide = (i % 12 === 0) ? 1 : -1;
+            const sDist = 1.68;
+            const sPos = pt.clone().add(norm.clone().multiplyScalar(stanchionSide * sDist));
+            
+            const stanchion = new THREE.Group();
+            stanchion.position.set(sPos.x, pt.y - 0.02, sPos.z);
+
+            const sBase = new THREE.Mesh(stanchionBaseGeo, goldStanchionMat);
+            sBase.position.y = 0.025;
+            const sPole = new THREE.Mesh(stanchionPoleGeo, goldStanchionMat);
+            sPole.position.y = 0.45;
+            const sCap = new THREE.Mesh(stanchionCapGeo, goldStanchionMat);
+            sCap.position.y = 0.88;
+            const sBulb = new THREE.Mesh(lanternBulbGeo, lanternBulbMat);
+            sBulb.position.y = 0.88;
+
+            stanchion.add(sBase, sPole, sCap, sBulb);
+            world.add(stanchion);
+          }
+
           const flowerPos = pt.clone().add(norm.clone().multiplyScalar(side * (2.1 + (i % 3) * 0.85)));
-          const cluster = createFlowerCluster3D();
+          const cluster = createFlowerCluster();
           cluster.position.set(flowerPos.x, pt.y - 0.18, flowerPos.z);
           cluster.scale.setScalar(0.95 + (i % 4) * 0.25);
           world.add(cluster);
@@ -1635,22 +1967,28 @@
           }
 
           if (i % 4 === 0) {
-            const tPos = pt.clone().add(norm.clone().multiplyScalar(-side * (4.2 + (i % 3) * 1.2)));
-            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-            trunk.position.set(tPos.x, tPos.y + 0.8, tPos.z);
-            world.add(trunk);
+            // Revisi 2: pohon digeser jauh dari jalan (6.8-8.8, dulu 4.2-6.6) dan
+            // TIDAK ditanam sama sekali bila dekat pos/kamera pos, supaya tajuk
+            // bulatnya tidak masuk ke frame dan menabrak teks/pengantin.
+            const tPos = pt.clone().add(norm.clone().multiplyScalar(-side * (6.8 + (i % 3) * 1.0)));
+            const tooCloseToStop = STOPS.some((s) => tPos.distanceTo(s.pos) < 9 || tPos.distanceTo(s.camPos) < 6.5);
+            if (!tooCloseToStop) {
+              const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+              trunk.position.set(tPos.x, tPos.y + 0.8, tPos.z);
+              world.add(trunk);
 
-            const isSakura = i % 8 === 0;
-            const crown = new THREE.Mesh(
-              crownGeo,
-              isSakura ? sakuraMat : (i % 12 === 0 ? deepBushMat : leafCrownMat)
-            );
-            crown.position.set(tPos.x, tPos.y + 2.15, tPos.z);
-            world.add(crown);
+              const isSakura = i % 8 === 0;
+              const crown = new THREE.Mesh(
+                crownGeo,
+                isSakura ? sakuraMat : (i % 12 === 0 ? deepBushMat : leafCrownMat)
+              );
+              crown.position.set(tPos.x, tPos.y + 2.15, tPos.z);
+              world.add(crown);
+            }
           }
 
           if (i % 9 === 0) {
-            const bfly = createButterfly3D(flowerColors[i % flowerColors.length]);
+            const bfly = createButterfly(flowerColors[i % flowerColors.length]);
             bfly.userData.basePos.set(flowerPos.x, pt.y + 1.1 + (i % 3) * 0.4, flowerPos.z);
             world.add(bfly);
           }
@@ -1683,113 +2021,23 @@
       buildBotanicalGardenWorld();
 
       /* =========================================================
-       * 4B. COMPANION GUIDE CAT ("SI MENG") + DYNAMIC 3D SPEECH BUBBLE
+       * 4B. COMPANION GUIDE CAT ("SI MENG") + DYNAMIC  SPEECH BUBBLE
        * ========================================================= */
-      const guideCat = createCat3D({
+      const guideCat = createCat({
         color: 0xf49742,
         stripeColor: 0xc96b22,
         scale: 1.0,
         crown: true,
         isGuide: true,
-        label: 'Meow~ Aku Si Meng, pemandu jalanmu di Taman Bunga Raka & Nisa! Ketuk aku untuk atraksi ya! 🐾🌸'
+        label: 'Meow~ Aku Si Meng, pemandu jalanmu di Taman Bunga Mr Pengantin & Mrs Pengantin! Ketuk aku untuk atraksi ya!'
       });
       scene.add(guideCat);
 
-      const STOP_CAT_MESSAGES = [
-        'Ketuk amplop di atas atau ajak aku main ya! 🐾💌',
-        'Selamat datang di Pelaminan Raka & Nisa! 🌸👑',
-        'Di sini awal mula kisah cinta mereka bersemi~ 🐾💖',
-        'Catat jadwal Akad & Resepsinya ya, jangan telat! 💍🎂',
-        'Ketuk pin merah untuk salin rute lokasi gedung! 📍🐾',
-        'Ketuk pigura emas untuk lihat foto kenangan! 📸✨',
-        'Terima kasih atas doa & tanda kasihmu! 🎁🐾',
-        'Tulis doa restumu di bawah ya, terima kasih! 🌸🙏'
-      ];
-
-      const TRICK_CAT_MESSAGES = [
-        'Hup! Salto 360° untuk kebahagiaan Raka & Nisa! 🤸‍♂️🐾',
-        'Yippie! Lompat tinggi penuh cinta~ Meow! 🐾💖',
-        'Putar tari gembira di taman bunga! 💃🌸🐾'
-      ];
-
-      let currentBubbleText = STOP_CAT_MESSAGES[0];
-
-      function drawCatSpeechBubble(ctx, w, h) {
-        ctx.clearRect(0, 0, w, h);
-
-        const rx = 28;
-        const ry = 22;
-        const rw = w - 56;
-        const rh = h - 68;
-        const rad = 46;
-
-        ctx.save();
-        ctx.shadowColor = 'rgba(25, 12, 18, 0.45)';
-        ctx.shadowBlur = 16;
-        ctx.shadowOffsetY = 6;
-
-        ctx.fillStyle = 'rgba(255, 252, 244, 0.96)';
-        ctx.strokeStyle = '#d49b27';
-        ctx.lineWidth = 8;
-
-        ctx.beginPath();
-        ctx.moveTo(rx + rad, ry);
-        ctx.lineTo(rx + rw - rad, ry);
-        ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + rad);
-        ctx.lineTo(rx + rw, ry + rh - rad);
-        ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - rad, ry + rh);
-        ctx.lineTo(w / 2 + 26, ry + rh);
-        ctx.lineTo(w / 2, ry + rh + 36);
-        ctx.lineTo(w / 2 - 26, ry + rh);
-        ctx.lineTo(rx + rad, ry + rh);
-        ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - rad);
-        ctx.lineTo(rx, ry + rad);
-        ctx.quadraticCurveTo(rx, ry, rx + rad, ry);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
-        ctx.fillStyle = '#3d1e28';
-        ctx.font = '800 30px "Plus Jakarta Sans", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(currentBubbleText, w / 2, ry + rh / 2, rw - 36);
-        ctx.restore();
-      }
-
-      const bubbleTex = makeTexture(drawCatSpeechBubble, 860, 190);
-      const catSpeechBubble = new THREE.Mesh(
-        new THREE.PlaneGeometry(2.55, 0.56),
-        new THREE.MeshBasicMaterial({
-          map: bubbleTex,
-          transparent: true,
-          depthWrite: false,
-          side: THREE.DoubleSide
-        })
-      );
-      catSpeechBubble.position.set(0, 1.48, 0);
-      catSpeechBubble.userData = { parentCat: guideCat };
-      clickableObjects.push(catSpeechBubble);
-      guideCat.add(catSpeechBubble);
-
-      function updateCatSpeechBubble(newText) {
-        if (!newText || newText === currentBubbleText) return;
-        currentBubbleText = newText;
-        const c = bubbleTex.image;
-        const ctx = c.getContext('2d');
-        ctx.save();
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, c.width, c.height);
-        ctx.scale(c.width / 860, c.height / 190);
-        drawCatSpeechBubble(ctx, 860, 190);
-        ctx.restore();
-        bubbleTex.needsUpdate = true;
-      }
+      /* Revisi: teks kucing pemandu dihilangkan total — tidak ada lagi balon teks di atas Si Meng.
+         Kucingnya tetap berjalan memandu, atraksinya tetap (lompat + suara + hati), tanpa teks. */
+      function updateCatSpeechBubble() { /* sengaja kosong: teks pemandu dinonaktifkan */ }
 
       let trickSequenceCounter = 0;
-      let customBubbleLockUntil = 0;
 
       function triggerCatTrick(targetCat = guideCat) {
         const u = targetCat.userData;
@@ -1803,17 +2051,14 @@
         playCatMeowSound(trickSequenceCounter);
 
         if (targetCat === guideCat) {
-          const msg = TRICK_CAT_MESSAGES[trickSequenceCounter];
-          customBubbleLockUntil = performance.now() + 3400;
-          updateCatSpeechBubble(msg);
-          showToast('🐾 Si Meng: "' + msg + '"');
+          /* Revisi: atraksi pemandu tanpa teks apa pun. */
         } else {
           showToast(u.label);
         }
       }
 
       /* =========================================================
-       * 5. STOP 0: FLOATING 3D ENVELOPE + REAL PAPER INVITATION LETTER
+       * 5. STOP 0: FLOATING  ENVELOPE + REAL PAPER INVITATION LETTER
        * ========================================================= */
       const heroGroup = new THREE.Group();
       heroGroup.position.copy(STOPS[0].pos);
@@ -1857,7 +2102,7 @@
       magicalGroundHalo.position.set(0, -0.78, 0);
       heroGroup.add(magicalGroundHalo);
 
-      const ENV_BASE_Y = 3.35;
+      const ENV_BASE_Y = isMobile ? 3.95 : 3.35; // Revisi 9: amplop mobile dinaikkan agar tidak tertutup teks/tombol bawah
       const envelopeStage = new THREE.Group();
       envelopeStage.position.set(0, ENV_BASE_Y, 0);
       heroGroup.add(envelopeStage);
@@ -1890,7 +2135,7 @@
         ctx.fillStyle = '#fff9eb';
         ctx.font = 'italic 700 44px "Playfair Display", serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Raka & Nisa', w / 2, h * 0.52);
+        ctx.fillText('Mr Pengantin & Mrs Pengantin', w / 2, h * 0.52);
 
         ctx.fillStyle = '#ffe59e';
         ctx.font = '700 24px "Plus Jakarta Sans", sans-serif';
@@ -1965,7 +2210,7 @@
         ctx.fillStyle = '#b57c16';
         ctx.font = '700 28px "Plus Jakarta Sans", sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('❀  UNDANGAN PERNIKAHAN  ❀', w / 2, 115);
+        ctx.fillText('UNDANGAN PERNIKAHAN', w / 2, 115);
 
         drawFlourishDivider(ctx, w / 2, 145, 420, '#c99326');
 
@@ -2012,12 +2257,12 @@
       letterCardMesh.castShadow = !isMobile;
       envelopeStage.add(letterCardMesh);
 
-      const heroCat = createCat3D({
+      const heroCat = createCat({
         color: 0xfff8f0,
         stripeColor: 0xf4b942,
         scale: 1.05,
         crown: true,
-        label: 'Meow! Surat undangan untuk ' + guestName + ' melayang indah di atas! 🐾💌'
+        label: 'Meow! Surat undangan untuk ' + guestName + ' melayang indah di atas!'
       });
       heroCat.position.set(2.35, -0.8, 0.65);
       heroCat.rotation.y = -0.45;
@@ -2030,25 +2275,103 @@
         group.lookAt(camTarget.x, group.position.y, camTarget.z);
       }
 
+      /* Revisi 3: ornamen panggung — mengubah panggung bulat yang polos menjadi
+         panggung berhias di SEMUA pos: lis emas tepi, pita warna di pinggir,
+         ring emas dalam, dan karangan bunga kecil melingkar di tepinya. */
+      /* Revisi 5: TANPA piring bulat. Penggantinya adalah taman pinggir jalan:
+         gundukan rumput pipih yang tepinya melandai menyatu ke tanah (bukan
+         piring bertepi tajam), karangan bunga di pinggir depan-belakang
+         (arah datang dan pergi jalan), batu taman pipih di sisi, dan
+         lentera taman di kiri-kanan jalan masuk tiap pos. */
+      function decorateGardenPatch(group, radius, topY) {
+        const mound = new THREE.Mesh(
+          new THREE.SphereGeometry(radius, 28, 14),
+          new THREE.MeshStandardMaterial({ color: 0x2e6b45, roughness: 0.9 })
+        );
+        mound.scale.set(1, 0.07, 1);
+        mound.position.y = topY - radius * 0.07;
+        mound.receiveShadow = true;
+        group.add(mound);
+        const moundY = (x, z) => {
+          const d2 = x * x + z * z;
+          if (d2 >= radius * radius) return topY - radius * 0.07;
+          return topY - radius * 0.07 + 0.07 * Math.sqrt(radius * radius - d2);
+        };
+        // Karangan bunga pinggir jalan: 12 depan, 12 belakang
+        const flowerMats = [
+          new THREE.MeshStandardMaterial({ color: 0xf49cbb, roughness: 0.5 }),
+          new THREE.MeshStandardMaterial({ color: 0xfff8f0, roughness: 0.5 }),
+          new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.4 })
+        ];
+        const flowerGeo = new THREE.SphereGeometry(0.12, 8, 6);
+        for (let i = 0; i < 24; i++) {
+          const side = i < 12 ? 1 : -1;
+          const k = i % 12;
+          const ang = (k / 11) * Math.PI;
+          const x = Math.cos(ang) * radius * 0.88;
+          const z = side * Math.sin(ang) * radius * 0.88;
+          const fl = new THREE.Mesh(flowerGeo, flowerMats[i % 3]);
+          fl.scale.set(1, 0.65, 1);
+          fl.position.set(x, moundY(x, z) + 0.07, z);
+          group.add(fl);
+        }
+        // Batu taman pipih di sisi gundukan
+        const stoneMat = new THREE.MeshStandardMaterial({ color: 0x9a938a, roughness: 0.85 });
+        const stoneGeo = new THREE.SphereGeometry(0.28, 10, 8);
+        [[-0.85, 0.15], [0.85, 0.15], [-0.85, -0.15], [0.85, -0.15]].forEach((p) => {
+          const x = p[0] * radius;
+          const z = p[1] * radius;
+          const s = new THREE.Mesh(stoneGeo, stoneMat);
+          s.scale.set(1, 0.35, 1);
+          s.position.set(x, moundY(x, z) + 0.04, z);
+          group.add(s);
+        });
+        // Lentera taman di kiri-kanan jalan masuk
+        const poleMat = new THREE.MeshStandardMaterial({ color: 0x2d1b18, roughness: 0.7 });
+        const glowMat = new THREE.MeshBasicMaterial({ color: 0xffe8a3 });
+        [[-0.72, 0.48], [0.72, 0.48]].forEach((p) => {
+          const x = p[0] * radius;
+          const z = p[1] * radius;
+          const y0 = moundY(x, z);
+          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.9, 8), poleMat);
+          pole.position.set(x, y0 + 0.45, z);
+          group.add(pole);
+          const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 8), glowMat);
+          lamp.position.set(x, y0 + 0.95, z);
+          group.add(lamp);
+        });
+      }
+
       function buildStop1Pelaminan() {
         const stop = STOPS[1];
         const g = new THREE.Group();
         g.position.copy(stop.pos);
+        /* Revisi 4: panggung DINAIKKAN 0,32 menjadi panggung terangkat (dais).
+           Sebelumnya panggung dan jalan berada di ketinggian yang sama persis,
+           sehingga jalan membelah tengah panggung dan menabrak ornamen, kue,
+           dan cincin di atasnya di semua pos. Sekarang jalan lewat DI BAWAH
+           panggung (bawah panggung menyentuh jalan), permukaan panggung bersih
+           dan ornamennya tidak lagi dipotong jalan. Semua isi pos ikut naik
+           bersama grupnya, jadi tidak ada yang tenggelam ke dalam panggung. */
+        g.position.y += 0.32;
         orientToCamera(g, stop.camPos);
 
         const stage = new THREE.Mesh(
           new THREE.CylinderGeometry(4.4, 4.7, 0.32, 36),
           new THREE.MeshStandardMaterial({ color: 0xf7e3b5, roughness: 0.45 })
         );
-        stage.position.y = -0.6;
+        stage.position.y = -0.16;
         stage.receiveShadow = true;
-        g.add(stage);
+        /* Revisi 5: piring bulat Pos 1 dihapus (stage tidak ditambahkan). */
+        decorateGardenPatch(g, 4.4, 0.0);
 
         const archTorus = new THREE.Mesh(
-          new THREE.TorusGeometry(2.65, 0.14, 14, 36, Math.PI),
+          new THREE.TorusGeometry(2.2, 0.14, 14, 36, Math.PI),
           new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.55 })
         );
-        archTorus.position.set(0, -0.4, -0.75);
+        // Revisi 14: gerbang diperkecil (2,65 -> 2,2) dan dipindah ke belakang (-0,75 -> -1,2),
+        // supaya puncaknya turun jauh di bawah teks dan tidak lagi menabrak teks di proyeksi layar.
+        archTorus.position.set(0, 0.0, -1.2);
         g.add(archTorus);
 
         for (let i = 0; i <= 14; i++) {
@@ -2057,32 +2380,39 @@
             new THREE.SphereGeometry(0.24, 10, 10),
             new THREE.MeshStandardMaterial({ color: flowerColors[i % flowerColors.length], roughness: 0.35 })
           );
-          blossom.position.set(Math.cos(ang) * 2.65, -0.4 + Math.sin(ang) * 2.65, -0.65);
+          blossom.position.set(Math.cos(ang) * 2.2, Math.sin(ang) * 2.2, -1.1); // Revisi 14: bunga ikut gerbang yang baru
           g.add(blossom);
         }
 
-        const couple = createCouple3D({ scale: 1.08 });
-        couple.position.set(0, -0.42, 0.25);
+        const couple = createCouple({ scale: 1.08 });
+        couple.position.set(0, 0.02, 0.25); // Revisi 11: pengantin Pos 1 kembali ke tengah, sesuai permintaan yoka
+        // Revisi 12: pengantin tetap di tengah sebagai pasangan, tapi jarak groom-bride
+        // dilebarkan (-1,05 / +1,05, dari -0,65 / +0,65) supaya ada celah di tengah
+        // untuk kucing lewat, tanpa menembus badan pengantin.
+        if (couple.userData) {
+          if (couple.userData.groom) couple.userData.groom.position.x = -1.05;
+          if (couple.userData.bride) couple.userData.bride.position.x = 1.05;
+        }
         g.add(couple);
 
-        const catLeft = createCat3D({
+        const catLeft = createCat({
           color: 0xf49742,
           stripeColor: 0xc96b22,
           scale: 0.85,
-          label: 'Kucing Mempelai Pria: Si Oyen siap mengawal di taman bunga! 🐾🌸'
+          label: 'Kucing Mempelai Pria: Si Oyen siap mengawal di taman bunga!'
         });
-        catLeft.position.set(-1.75, -0.42, 0.65);
+        catLeft.position.set(-1.75, 0.04, 0.65);
         catLeft.rotation.y = 0.35;
         g.add(catLeft);
 
-        const catRight = createCat3D({
+        const catRight = createCat({
           color: 0xfff8f0,
           stripeColor: 0xffb3c1,
           scale: 0.85,
           crown: true,
-          label: 'Kucing Mempelai Wanita: Si Putih memakai mahkota bunga! 🐾👑'
+          label: 'Kucing Mempelai Wanita: Si Putih memakai mahkota bunga!'
         });
-        catRight.position.set(1.75, -0.42, 0.65);
+        catRight.position.set(2.5, 0.04, 0.65); // Revisi 13: kucing putih menjauh dari gaun pengantin (tadinya 1,75, terlalu dekat dengan bride di 1,05)
         catRight.rotation.y = -0.35;
         g.add(catRight);
 
@@ -2091,7 +2421,11 @@
           drawFloatingLine(ctx, 'Mempelai Berbahagia', w / 2, 195, 'italic 700 68px "Playfair Display", serif', '#ffffff');
           drawFlourishDivider(ctx, w / 2, 240, 520, '#ffd97d');
         }, 7.6, 1.8, 1400, 340);
-        topText.mesh.position.set(0, 3.1, -0.3);
+        topText.mesh.position.set(0, 3.85, 0.1); // Revisi 14: teks naik dan maju ke depan, jauh di atas puncak gerbang
+        // Revisi 14: teks diprioritaskan render di atas gerbang (depthTest mati),
+        // jadi gerbang tidak bisa lagi menutupi teks, dari sudut kamera mana pun.
+        topText.mesh.renderOrder = 10;
+        topText.mesh.material.depthTest = false;
         g.add(topText.mesh);
 
         const leftGroomText = createFloatingTextPlane((ctx, w, h) => {
@@ -2100,7 +2434,7 @@
           drawFloatingLine(ctx, 'Putra Pertama dari', w / 2, 260, '700 32px "Plus Jakarta Sans", sans-serif', '#ffe699');
           drawFloatingLine(ctx, 'Bpk. Hendra & Ibu Sari', w / 2, 318, '800 36px "Plus Jakarta Sans", sans-serif', '#ffffff');
         }, 3.8, 2.0, 800, 420);
-        leftGroomText.mesh.position.set(-2.95, 1.35, 0.2);
+        leftGroomText.mesh.position.set(-2.95, 1.65, 0.2);
         leftGroomText.mesh.rotation.y = 0.18;
         g.add(leftGroomText.mesh);
 
@@ -2110,7 +2444,7 @@
           drawFloatingLine(ctx, 'Putri Bungsu dari', w / 2, 260, '700 32px "Plus Jakarta Sans", sans-serif', '#ffe699');
           drawFloatingLine(ctx, 'Bpk. Surya & Ibu Dewi', w / 2, 318, '800 36px "Plus Jakarta Sans", sans-serif', '#ffffff');
         }, 3.8, 2.0, 800, 420);
-        rightBrideText.mesh.position.set(2.95, 1.35, 0.2);
+        rightBrideText.mesh.position.set(2.95, 1.65, 0.2);
         rightBrideText.mesh.rotation.y = -0.18;
         g.add(rightBrideText.mesh);
 
@@ -2122,29 +2456,38 @@
         const stop = STOPS[2];
         const g = new THREE.Group();
         g.position.copy(stop.pos);
+        /* Revisi 4: panggung DINAIKKAN 0,32 menjadi panggung terangkat (dais).
+           Sebelumnya panggung dan jalan berada di ketinggian yang sama persis,
+           sehingga jalan membelah tengah panggung dan menabrak ornamen, kue,
+           dan cincin di atasnya di semua pos. Sekarang jalan lewat DI BAWAH
+           panggung (bawah panggung menyentuh jalan), permukaan panggung bersih
+           dan ornamennya tidak lagi dipotong jalan. Semua isi pos ikut naik
+           bersama grupnya, jadi tidak ada yang tenggelam ke dalam panggung. */
+        g.position.y += 0.32;
         orientToCamera(g, stop.camPos);
 
         const base = new THREE.Mesh(
           new THREE.CylinderGeometry(4.2, 4.5, 0.3, 32),
           new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.65 })
         );
-        base.position.y = -0.6;
-        g.add(base);
+        base.position.y = -0.15;
+        /* Revisi 5: piring bulat Pos 2 dihapus. */
+        decorateGardenPatch(g, 4.2, 0.0);
 
         const bench = new THREE.Mesh(
           new THREE.BoxGeometry(2.4, 0.18, 0.8),
           new THREE.MeshStandardMaterial({ color: 0x8d5538, roughness: 0.7 })
         );
-        bench.position.set(0, -0.25, 0.85);
+        bench.position.set(2.2, 0.09, 0.85); // Revisi 10: bangku ke pinggir jalan
         g.add(bench);
 
-        const storyCat = createCat3D({
+        const storyCat = createCat({
           color: 0xf6d5b0,
           stripeColor: 0xd99b66,
           scale: 0.95,
-          label: 'Meow~ Dari pertemuan pertama tahun 2022 sampai janji suci 2026! 🐾💖'
+          label: 'Meow~ Dari pertemuan pertama tahun 2022 sampai janji suci 2026!'
         });
-        storyCat.position.set(0, -0.15, 0.85);
+        storyCat.position.set(2.2, 0.22, 0.85); // Revisi 10: kucing cerita ikut bangkunya ke pinggir
         g.add(storyCat);
 
         const storyFloating = createFloatingTextPlane((ctx, w, h) => {
@@ -2154,19 +2497,19 @@
 
           const cols = [
             {
-              year: '❀ 2022 ❀',
+              year: '2022',
               title: 'Pertemuan Pertama',
               line1: 'Berawal dari senyum hangat',
               line2: '& obrolan sore di taman bunga.'
             },
             {
-              year: '❀ 2024 ❀',
+              year: '2024',
               title: 'Tumbuh Bersama',
               line1: 'Saling menguatkan langkah',
               line2: 'melewati suka & duka bersama.'
             },
             {
-              year: '❀ 2026 ❀',
+              year: '2026',
               title: 'Ikatan Suci',
               line1: 'Dengan restu kedua orang tua',
               line2: 'mantap melangkah ke pelaminan.'
@@ -2185,7 +2528,7 @@
           drawFloatingLine(ctx, '“Cinta sejati mekar semakin indah di setiap musim kehidupan.”', w / 2, 565, 'italic 700 36px "Cormorant Garamond", serif', '#ffe89e');
         }, 8.2, 3.8, 1600, 640);
 
-        storyFloating.mesh.position.set(0, 1.95, -0.35);
+        storyFloating.mesh.position.set(0, 2.35, -0.35);
         g.add(storyFloating.mesh);
 
         scene.add(g);
@@ -2197,14 +2540,23 @@
         const stop = STOPS[3];
         const g = new THREE.Group();
         g.position.copy(stop.pos);
+        /* Revisi 4: panggung DINAIKKAN 0,32 menjadi panggung terangkat (dais).
+           Sebelumnya panggung dan jalan berada di ketinggian yang sama persis,
+           sehingga jalan membelah tengah panggung dan menabrak ornamen, kue,
+           dan cincin di atasnya di semua pos. Sekarang jalan lewat DI BAWAH
+           panggung (bawah panggung menyentuh jalan), permukaan panggung bersih
+           dan ornamennya tidak lagi dipotong jalan. Semua isi pos ikut naik
+           bersama grupnya, jadi tidak ada yang tenggelam ke dalam panggung. */
+        g.position.y += 0.32;
         orientToCamera(g, stop.camPos);
 
         const base = new THREE.Mesh(
           new THREE.CylinderGeometry(4.4, 4.7, 0.3, 36),
           new THREE.MeshStandardMaterial({ color: 0xf7e3b5, roughness: 0.45 })
         );
-        base.position.y = -0.6;
-        g.add(base);
+        base.position.y = -0.15;
+        /* Revisi 5: piring bulat Pos 3 dihapus. */
+        decorateGardenPatch(g, 4.4, 0.0);
 
         const ringMat = new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.2, metalness: 0.8 });
         const r1 = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.065, 16, 36), ringMat);
@@ -2214,11 +2566,11 @@
         r2.position.x = 0.2;
         r2.rotation.y = -0.4;
         floatingRingsGroup.add(r1, r2);
-        floatingRingsGroup.position.set(-1.55, 0.35, 0.95);
+        floatingRingsGroup.position.set(-2.2, 0.75, 0.95); // Revisi 10: cincin lebih ke pinggir
         g.add(floatingRingsGroup);
 
         const cakeGroup = new THREE.Group();
-        cakeGroup.position.set(1.55, -0.42, 0.95);
+        cakeGroup.position.set(2.2, 0.02, 0.95); // Revisi 10: kue lebih ke pinggir
         const cakeMat = new THREE.MeshStandardMaterial({ color: 0xfff8f0, roughness: 0.4 });
         const icingMat = new THREE.MeshStandardMaterial({ color: 0xff8da1, roughness: 0.35 });
         [
@@ -2242,19 +2594,19 @@
           drawFlourishDivider(ctx, w / 2, 198, 600, '#ffd97d');
 
           const leftX = w * 0.28;
-          drawFloatingLine(ctx, '💍 Akad Nikah', leftX, 290, '700 54px "Playfair Display", serif', '#fffdf7');
+          drawFloatingLine(ctx, 'Akad Nikah', leftX, 290, '700 54px "Playfair Display", serif', '#fffdf7');
           drawFloatingLine(ctx, '08.00 – 10.00 WIB', leftX, 360, '800 42px "Plus Jakarta Sans", sans-serif', '#ffd97d');
           drawFloatingLine(ctx, 'Prosesi Ijab Qabul Sakral & Khidmat', leftX, 415, '600 28px "Plus Jakarta Sans", sans-serif', '#fff5e4');
 
           const rightX = w * 0.72;
-          drawFloatingLine(ctx, '🌸 Resepsi Taman', rightX, 290, '700 54px "Playfair Display", serif', '#fffdf7');
+          drawFloatingLine(ctx, 'Resepsi Taman', rightX, 290, '700 54px "Playfair Display", serif', '#fffdf7');
           drawFloatingLine(ctx, '11.00 – 14.00 WIB', rightX, 360, '800 42px "Plus Jakarta Sans", sans-serif', '#ffd97d');
           drawFloatingLine(ctx, 'Jamuan Kasih & Ramah Tamah Tamu', rightX, 415, '600 28px "Plus Jakarta Sans", sans-serif', '#fff5e4');
 
           drawFlourishDivider(ctx, w / 2, 485, 680, '#ffd97d');
         }, 8.0, 3.6, 1500, 560);
 
-        scheduleFloating.mesh.position.set(0, 1.95, -0.35);
+        scheduleFloating.mesh.position.set(0, 2.35, -0.35);
         g.add(scheduleFloating.mesh);
 
         scene.add(g);
@@ -2262,51 +2614,288 @@
       buildStop3AkadResepsi();
 
       let bouncingPin = null;
+      let buildingDoorPivot = null;
+      let buildingDoorOpen = 0;
       function buildStop4Location() {
         const stop = STOPS[4];
         const g = new THREE.Group();
         g.position.copy(stop.pos);
+        /* Revisi 4: panggung DINAIKKAN 0,32 menjadi panggung terangkat (dais).
+           Sebelumnya panggung dan jalan berada di ketinggian yang sama persis,
+           sehingga jalan membelah tengah panggung dan menabrak ornamen, kue,
+           dan cincin di atasnya di semua pos. Sekarang jalan lewat DI BAWAH
+           panggung (bawah panggung menyentuh jalan), permukaan panggung bersih
+           dan ornamennya tidak lagi dipotong jalan. Semua isi pos ikut naik
+           bersama grupnya, jadi tidak ada yang tenggelam ke dalam panggung. */
+        g.position.y += 0.32;
         orientToCamera(g, stop.camPos);
 
+        // 1. Grand Stone Terrace & Platform Base
         const base = new THREE.Mesh(
-          new THREE.CylinderGeometry(4.4, 4.7, 0.3, 36),
-          new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.65 })
+          new THREE.CylinderGeometry(5.2, 5.5, 0.35, 48),
+          new THREE.MeshStandardMaterial({ color: 0xf0e7db, roughness: 0.55 })
         );
-        base.position.y = -0.6;
-        g.add(base);
+        /* Revisi 5: piring bulat + lis emas Pos 4 dihapus, diganti taman. */
+        decorateGardenPatch(g, 5.2, 0.015);
 
+        // 2. The Grand Wedding Ballroom Building ("Gedung Balai Kartini")
         const building = new THREE.Group();
-        building.position.set(0, -0.42, 0.95);
+        building.position.set(0, 0.02, 0.35);
         g.add(building);
 
-        const hallBody = new THREE.Mesh(
-          new THREE.BoxGeometry(2.4, 0.95, 1.3),
-          new THREE.MeshStandardMaterial({ color: 0xfff8eb, roughness: 0.45 })
-        );
-        hallBody.position.y = 0.48;
-        building.add(hallBody);
+        // High quality architectural materials
+        const marbleMat = new THREE.MeshStandardMaterial({ color: 0xfffcf7, roughness: 0.32 });
+        const wallMat = new THREE.MeshStandardMaterial({ color: 0xfaf4e8, roughness: 0.42 });
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xdfb14e, metalness: 0.65, roughness: 0.28 });
+        const roofMat = new THREE.MeshStandardMaterial({ color: 0x882339, roughness: 0.45, metalness: 0.15 }); // Royal Burgundy Slate
+        const darkTrimMat = new THREE.MeshStandardMaterial({ color: 0x4f1220, roughness: 0.5 });
+        const warmGlassMat = new THREE.MeshBasicMaterial({ color: 0xffe28e }); // Glowing Ballroom Windows
+        const doorWoodMat = new THREE.MeshStandardMaterial({ color: 0x3d1c16, roughness: 0.55 });
 
-        const hallRoof = new THREE.Mesh(
-          new THREE.ConeGeometry(1.9, 0.7, 4),
-          new THREE.MeshStandardMaterial({ color: 0xc94a66, roughness: 0.5 })
-        );
-        hallRoof.rotation.y = Math.PI / 4;
-        hallRoof.position.y = 1.3;
-        building.add(hallRoof);
+        // A. Grand Multi-Tiered Marble Podium Steps
+        const step1 = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.10, 2.8), marbleMat);
+        step1.position.set(0, 0.05, 0.3);
+        const step2 = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.10, 2.5), marbleMat);
+        step2.position.set(0, 0.15, 0.35);
+        const step3 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.10, 2.2), marbleMat);
+        step3.position.set(0, 0.25, 0.4);
+        building.add(step1, step2, step3);
 
+        // Red carpet runner flowing down the center steps
+        const stepCarpet = new THREE.Mesh(
+          new THREE.BoxGeometry(1.6, 0.02, 2.4),
+          new THREE.MeshStandardMaterial({ color: 0x9c5a52, roughness: 0.85 })
+        );
+        stepCarpet.position.set(0, 0.26, 0.5);
+        building.add(stepCarpet);
+
+        // B. Main Hall Structure (Center + Symmetrical Wings)
+        // Revisi 13: aula tengah dipecah jadi kiri/kanan/atas, tengahnya LUBANG
+        // lorong terbuka (lebar 1,05, tinggi sampai 1,875) — bukan kotak padat lagi,
+        // supaya dari depan terlihat tembus ke langit/taman di belakang gedung.
+        const hallLeft = new THREE.Mesh(new THREE.BoxGeometry(1.075, 2.3, 2.0), wallMat);
+        hallLeft.position.set(-1.0625, 1.45, -0.2);
+        const hallRight = new THREE.Mesh(new THREE.BoxGeometry(1.075, 2.3, 2.0), wallMat);
+        hallRight.position.set(1.0625, 1.45, -0.2);
+        const hallTop = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.725, 2.0), wallMat);
+        hallTop.position.set(0, 2.2375, -0.2);
+        building.add(hallLeft, hallRight, hallTop);
+
+        const leftWing = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.95, 1.7), wallMat);
+        leftWing.position.set(-2.2, 1.28, -0.3);
+        const rightWing = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.95, 1.7), wallMat);
+        rightWing.position.set(2.2, 1.28, -0.3);
+        building.add(leftWing, rightWing);
+
+        // Architectural Quoin Stones / Corner Pillars on Wings
+        [-2.92, -1.48, 1.48, 2.92].forEach(qx => {
+          const quoin = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.0, 0.14), marbleMat);
+          quoin.position.set(qx, 1.28, 0.52);
+          building.add(quoin);
+        });
+
+        // Continuous Cornice and Frieze along the roofline
+        const centerCornice = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.14, 2.2), marbleMat);
+        centerCornice.position.set(0, 2.62, -0.2);
+        const wingCorniceLeft = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.12, 1.85), marbleMat);
+        wingCorniceLeft.position.set(-2.2, 2.28, -0.3);
+        const wingCorniceRight = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.12, 1.85), marbleMat);
+        wingCorniceRight.position.set(2.2, 2.28, -0.3);
+        building.add(centerCornice, wingCorniceLeft, wingCorniceRight);
+
+        // C. Neoclassical Front Colonnade Portico
+        // 4 Grand Fluted Columns
+        const colGeo = new THREE.CylinderGeometry(0.10, 0.12, 2.25, 16);
+        const colCapGeo = new THREE.CylinderGeometry(0.16, 0.11, 0.09, 16);
+        const colBaseGeo = new THREE.CylinderGeometry(0.13, 0.16, 0.09, 16);
+        const colPositions = [-1.15, -0.38, 0.38, 1.15];
+        colPositions.forEach(cx => {
+          const colGroup = new THREE.Group();
+          colGroup.position.set(cx, 1.42, 0.95);
+
+          const colShaft = new THREE.Mesh(colGeo, marbleMat);
+          const colCap = new THREE.Mesh(colCapGeo, goldMat);
+          colCap.position.y = 1.12;
+          const colBase = new THREE.Mesh(colBaseGeo, goldMat);
+          colBase.position.y = -1.12;
+          colGroup.add(colShaft, colCap, colBase);
+
+          // Climbing rose garlands on columns
+          for (let r = 0; r < 5; r++) {
+            const roseAng = r * 1.4;
+            const roseY = -0.7 + r * 0.35;
+            const roseMesh = new THREE.Mesh(
+              new THREE.SphereGeometry(0.055, 6, 6),
+              new THREE.MeshStandardMaterial({ color: (r % 2 === 0) ? 0xfba0b3 : 0xffffff, roughness: 0.5 })
+            );
+            roseMesh.position.set(Math.cos(roseAng) * 0.14, roseY, Math.sin(roseAng) * 0.14);
+            colGroup.add(roseMesh);
+          }
+          building.add(colGroup);
+        });
+
+        // Portico Entablature Beam
+        const entablature = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.20, 0.65), marbleMat);
+        entablature.position.set(0, 2.62, 0.95);
+        const entGoldTrim = new THREE.Mesh(new THREE.BoxGeometry(2.72, 0.04, 0.67), goldMat);
+        entGoldTrim.position.set(0, 2.70, 0.95);
+        building.add(entablature, entGoldTrim);
+
+        // Classical Triangular Pediment
+        const pedimentGeo = new THREE.CylinderGeometry(1.65, 1.65, 0.5, 3);
+        const pediment = new THREE.Mesh(pedimentGeo, marbleMat);
+        pediment.rotation.z = Math.PI;
+        pediment.scale.set(1.0, 0.45, 1.0);
+        pediment.position.set(0, 2.95, 0.95);
+        building.add(pediment);
+
+        // Golden Wedding Medallion inside the Pediment Tympanum
+        const pedMedallion = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.22, 0.22, 0.04, 16),
+          goldMat
+        );
+        pedMedallion.rotation.x = Math.PI / 2;
+        pedMedallion.position.set(0, 2.92, 1.22);
+        building.add(pedMedallion);
+
+        // D. Grand Entrance — Revisi 13: TIDAK PAKAI PINTU LAGI.
+        // Daun pintu, gagang, dan lubang gelap dihapus total. Yang tersisa hanya
+        // lis bingkai (kiri/kanan/atas) yang membingkai lorong terbuka di atas,
+        // jadi dari depan terlihat tembus, dan kucing lewat lorong itu tanpa
+        // menabrak daun pintu. buildingDoorPivot tetap null, jadi kode animasi
+        // pintu lama (if buildingDoorPivot) tidak berjalan apa-apa.
+        const doorFrameMat = marbleMat;
+        const jambL = new THREE.Mesh(new THREE.BoxGeometry(0.10, 2.05, 0.10), doorFrameMat);
+        jambL.position.set(-0.575, 1.32, 0.78);
+        const jambR = new THREE.Mesh(new THREE.BoxGeometry(0.10, 2.05, 0.10), doorFrameMat);
+        jambR.position.set(0.575, 1.32, 0.78);
+        const lintel = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.20, 0.10), doorFrameMat);
+        lintel.position.set(0, 2.25, 0.78);
+        building.add(jambL, jambR, lintel);
+        // Arched Transom Window above door (glowing warmly from the ballroom inside)
+        const doorTransom = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.50, 0.50, 0.06, 16, 1, false, 0, Math.PI),
+          warmGlassMat
+        );
+        doorTransom.rotation.z = -Math.PI / 2;
+        doorTransom.position.set(0, 1.88, 0.81);
+        building.add(doorTransom);
+        // Revisi 13: tidak ada daun pintu yang ditambahkan lagi.
+
+        // Grand Coach Lanterns beside the entrance
+        [-0.95, 0.95].forEach(lx => {
+          const lanternGroup = new THREE.Group();
+          lanternGroup.position.set(lx, 1.55, 0.88);
+          const sconceArm = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.14, 6), darkTrimMat);
+          sconceArm.rotation.x = Math.PI / 2;
+          const lanternBody = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.05, 0.18, 6), goldMat);
+          lanternBody.position.z = 0.08;
+          const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), warmGlassMat);
+          bulb.position.z = 0.08;
+          lanternGroup.add(sconceArm, lanternBody, bulb);
+          building.add(lanternGroup);
+        });
+
+        // E. Symmetrical Grand Arched Windows on Wings (with warm ballroom illumination!)
+        [-2.2, 2.2].forEach(wx => {
+          [-0.35, 0.35].forEach(ox => {
+            const winX = wx + ox;
+            const winFrame = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.95, 0.06), marbleMat);
+            winFrame.position.set(winX, 1.35, 0.53);
+            const winGlass = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.85, 0.07), warmGlassMat);
+            winGlass.position.set(winX, 1.35, 0.53);
+            const winArch = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.15, 0.15, 0.07, 12, 1, false, 0, Math.PI),
+              warmGlassMat
+            );
+            winArch.rotation.z = -Math.PI / 2;
+            winArch.position.set(winX, 1.78, 0.53);
+            building.add(winFrame, winGlass, winArch);
+          });
+        });
+
+        // F. Palatial Mansard Roofs
+        const centerRoof = new THREE.Mesh(new THREE.ConeGeometry(2.7, 1.25, 4), roofMat);
+        centerRoof.rotation.y = Math.PI / 4;
+        centerRoof.position.set(0, 3.25, -0.2);
+        const wingRoofLeft = new THREE.Mesh(new THREE.ConeGeometry(1.4, 0.85, 4), roofMat);
+        wingRoofLeft.rotation.y = Math.PI / 4;
+        wingRoofLeft.position.set(-2.2, 2.70, -0.3);
+        const wingRoofRight = new THREE.Mesh(new THREE.ConeGeometry(1.4, 0.85, 4), roofMat);
+        wingRoofRight.rotation.y = Math.PI / 4;
+        wingRoofRight.position.set(2.2, 2.70, -0.3);
+        building.add(centerRoof, wingRoofLeft, wingRoofRight);
+
+        // G. Grand Rooftop Cupola & Golden Bell Spire
+        const cupolaGroup = new THREE.Group();
+        cupolaGroup.position.set(0, 3.88, -0.2);
+        
+        const cupolaBase = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.56, 0.35, 8), marbleMat);
+        for (let p = 0; p < 6; p++) {
+          const pAng = (p / 6) * Math.PI * 2;
+          const pCol = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.38, 8), marbleMat);
+          pCol.position.set(Math.cos(pAng) * 0.40, 0.35, Math.sin(pAng) * 0.40);
+          cupolaGroup.add(pCol);
+        }
+        const cupolaLight = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), warmGlassMat);
+        cupolaLight.position.y = 0.35;
+        const cupolaDome = new THREE.Mesh(
+          new THREE.SphereGeometry(0.48, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+          goldMat
+        );
+        cupolaDome.position.y = 0.54;
+        const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.05, 0.65, 8), goldMat);
+        spire.position.y = 1.05;
+        const finialBall = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), goldMat);
+        finialBall.position.y = 1.40;
+        cupolaGroup.add(cupolaBase, cupolaLight, cupolaDome, spire, finialBall);
+        building.add(cupolaGroup);
+
+        // H. Grand Stone Garden Urns with Rose Topiaries flanking steps
+        [-2.2, 2.2].forEach(ux => {
+          const urnGroup = new THREE.Group();
+          urnGroup.position.set(ux, 0.28, 1.4);
+          const urnPedestal = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.35, 0.45), marbleMat);
+          const urnBowl = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.16, 0.30, 12), marbleMat);
+          urnBowl.position.y = 0.30;
+          const topiary = new THREE.Mesh(
+            new THREE.SphereGeometry(0.28, 10, 8),
+            new THREE.MeshStandardMaterial({ color: 0x245838, roughness: 0.7 })
+          );
+          topiary.position.y = 0.58;
+          for (let b = 0; b < 6; b++) {
+            const bAng = b * 1.05;
+            const bRose = new THREE.Mesh(
+              new THREE.SphereGeometry(0.06, 6, 6),
+              new THREE.MeshStandardMaterial({ color: 0xfca0b6, roughness: 0.5 })
+            );
+            bRose.position.set(Math.cos(bAng) * 0.24, 0.58 + ((b % 3) - 1) * 0.1, Math.sin(bAng) * 0.24);
+            urnGroup.add(bRose);
+          }
+          urnGroup.add(urnPedestal, urnBowl, topiary);
+          building.add(urnGroup);
+        });
+
+        // 3. Interactive Bouncing Location Pin (atop the grand venue spire)
         bouncingPin = new THREE.Group();
-        bouncingPin.position.set(0, 2.05, 0.95);
+        bouncingPin.position.set(0, 5.55, 0.15);
         const pinHead = new THREE.Mesh(
-          new THREE.SphereGeometry(0.28, 20, 16),
-          new THREE.MeshStandardMaterial({ color: 0xff3b5c, roughness: 0.3 })
+          new THREE.SphereGeometry(0.32, 24, 20),
+          new THREE.MeshStandardMaterial({ color: 0xff3b5c, roughness: 0.25, metalness: 0.1 })
         );
         const pinCone = new THREE.Mesh(
-          new THREE.ConeGeometry(0.2, 0.48, 18),
-          new THREE.MeshStandardMaterial({ color: 0xff3b5c, roughness: 0.3 })
+          new THREE.ConeGeometry(0.22, 0.55, 20),
+          new THREE.MeshStandardMaterial({ color: 0xff3b5c, roughness: 0.25, metalness: 0.1 })
         );
         pinCone.rotation.x = Math.PI;
-        pinCone.position.y = -0.28;
-        bouncingPin.add(pinHead, pinCone);
+        pinCone.position.y = -0.32;
+        const pinGoldRing = new THREE.Mesh(
+          new THREE.TorusGeometry(0.24, 0.035, 12, 24),
+          goldMat
+        );
+        pinGoldRing.rotation.x = Math.PI / 2;
+        bouncingPin.add(pinHead, pinCone, pinGoldRing);
+
         pinHead.userData = {
           action: 'copyLocation',
           text: 'Gedung Balai Kartini Bandung, Jl. Dago Asri No. 88, Kota Bandung'
@@ -2314,15 +2903,30 @@
         clickableObjects.push(pinHead);
         g.add(bouncingPin);
 
+        // Make building facade clickable too
+        building.traverse(obj => {
+          if (obj.isMesh) {
+            obj.userData = {
+              action: 'copyLocation',
+              text: 'Gedung Balai Kartini Bandung, Jl. Dago Asri No. 88, Kota Bandung'
+            };
+            clickableObjects.push(obj);
+          }
+        });
+
+        // 4. Floating Location Header Plane (adjusted height to crown the grand building)
         const locFloating = createFloatingTextPlane((ctx, w, h) => {
           drawFloatingLine(ctx, 'TEMPAT & PETA LOKASI ACARA', w / 2, 85, '800 30px "Plus Jakarta Sans", sans-serif', '#ffe89e');
           drawFloatingLine(ctx, 'Gedung Balai Kartini Bandung', w / 2, 168, 'italic 700 68px "Playfair Display", serif', '#ffffff');
           drawFlourishDivider(ctx, w / 2, 215, 580, '#ffd97d');
           drawFloatingLine(ctx, 'Jl. Dago Asri No. 88, Kecamatan Coblong, Kota Bandung', w / 2, 280, '700 36px "Plus Jakarta Sans", sans-serif', '#fffdf7');
-          drawFloatingLine(ctx, '📍 Ketuk Teks atau Pin Merah 3D untuk Menyalin Alamat Rute', w / 2, 355, '800 32px "Plus Jakarta Sans", sans-serif', '#ffd97d');
+          drawFloatingLine(ctx, 'Ketuk Gedung atau Pin Merah untuk Menyalin Alamat Rute', w / 2, 355, '800 32px "Plus Jakarta Sans", sans-serif', '#ffd97d');
         }, 7.8, 2.7, 1500, 440);
 
-        locFloating.mesh.position.set(0, 2.35, -0.45);
+        /* Revisi 2: teks lokasi diturunkan agar menempel di depan fasad gedung,
+           bukan melayang di atas atap. z 2.05 = di depan kolom/fasad, gedung tidak digeser. */
+        locFloating.mesh.position.set(0, 4.3, 2.05);
+        locFloating.mesh.renderOrder = 5;
         locFloating.mesh.userData = {
           action: 'copyLocation',
           text: 'Gedung Balai Kartini Bandung, Jl. Dago Asri No. 88, Kota Bandung'
@@ -2334,11 +2938,44 @@
       }
       buildStop4Location();
 
+      // Extended Gallery Data with 6 Romantic Pre-Wedding Chapters
       const GALLERY_DATA = [
-        { caption: 'Momen 1 • Senja Pertama di Taman Bunga Bersama Kucing (2022)', c1: '#ff9a8b', c2: '#ff6a88' },
-        { caption: 'Momen 2 • Tawa & Cerita di Kota Bandung (2024)', c1: '#f6d365', c2: '#fda085' },
-        { caption: 'Momen 3 • Hari Lamaran Penuh Bahagia (2026)', c1: '#84fab0', c2: '#8fd3f4' },
-        { caption: 'Momen 4 • Menuju Hari Bahagia Pernikahan (12.12.2026)', c1: '#fccb90', c2: '#d57eeb' }
+        {
+          title: 'Senja Pertama di Taman Sakura',
+          caption: 'Momen 1 • Pertemuan Manis di Bunga Sakura (2022)',
+          sub: 'Pertemuan pertama kami yang tak disengaja di bawah temaram senja kebun bunga yang mekar, ditemani si kucing kesayangan.',
+          theme: 'twilight'
+        },
+        {
+          title: 'Kencan Hangat Sudut Braga',
+          caption: 'Momen 2 • Tawa & Cerita Manis di Kota Bandung (2024)',
+          sub: 'Secangkir teh hangat, alunan musik klasik, dan ribuan tawa yang mengukuhkan satu rasa di sudut jalan bersejarah Bandung.',
+          theme: 'cafe'
+        },
+        {
+          title: 'Janji di Puncak Bukit Bintang',
+          caption: 'Momen 3 • Lamaran Romantis di Bawah Bintang (2025)',
+          sub: 'Di bawah hamparan langit bertabur gemintang dan kelap-kelip lampu kota Bandung, sebuah janji suci dan cincin tersemat.',
+          theme: 'proposal'
+        },
+        {
+          title: 'Gaun Pengantin Sutra & Jas Elegan',
+          caption: 'Momen 4 • Potret Pre-Wedding Busana Pengantin (2026)',
+          sub: 'Balutan gaun putih berenda mutiara dan setelan tuksedo elegan melambangkan kesiapan kami melangkah bersama ke gerbang pernikahan.',
+          theme: 'formal'
+        },
+        {
+          title: 'Langkah Menuju Hari Bahagia',
+          caption: 'Momen 5 • Melangkah Menuju Ijab Kabul (12.12.2026)',
+          sub: 'Dua keluarga, dua hati, dan jutaan doa bertaut menuju momen sakral ijab kabul yang dinanti dalam limpahan berkah.',
+          theme: 'walk'
+        },
+        {
+          title: 'Kisah Kasih Abadi Mr Pengantin & Mrs Pengantin',
+          caption: 'Momen 6 • Bahagia Abadi Selamanya • Mr Pengantin & Mrs Pengantin',
+          sub: 'Semoga cinta dan ridho-Nya senantiasa menaungi bahtera rumah tangga kami hingga ke surga-Nya kelak. Aamiin.',
+          theme: 'forever'
+        }
       ];
       const galleryDataUrls = [];
 
@@ -2346,75 +2983,619 @@
         const stop = STOPS[5];
         const g = new THREE.Group();
         g.position.copy(stop.pos);
+        /* Revisi 4: panggung DINAIKKAN 0,32 menjadi panggung terangkat (dais).
+           Sebelumnya panggung dan jalan berada di ketinggian yang sama persis,
+           sehingga jalan membelah tengah panggung dan menabrak ornamen, kue,
+           dan cincin di atasnya di semua pos. Sekarang jalan lewat DI BAWAH
+           panggung (bawah panggung menyentuh jalan), permukaan panggung bersih
+           dan ornamennya tidak lagi dipotong jalan. Semua isi pos ikut naik
+           bersama grupnya, jadi tidak ada yang tenggelam ke dalam panggung. */
+        g.position.y += 0.32;
         orientToCamera(g, stop.camPos);
 
+        // 1. Grand Travertine Terrace Base with Gold Rim
         const base = new THREE.Mesh(
-          new THREE.CylinderGeometry(4.8, 5.1, 0.3, 36),
-          new THREE.MeshStandardMaterial({ color: 0xf7e3b5, roughness: 0.45 })
+          new THREE.CylinderGeometry(5.4, 5.8, 0.35, 48),
+          new THREE.MeshStandardMaterial({ color: 0xf6ede0, roughness: 0.5 })
         );
-        base.position.y = -0.6;
-        g.add(base);
+        /* Revisi 5: piring bulat + lis emas Pos 5 dihapus, diganti taman. */
+        decorateGardenPatch(g, 5.4, 0.015);
 
+        // 2. Exhibition Trellis Pergola overhead with Climbing Roses & Fairy Lights
+        const pergolaGroup = new THREE.Group();
+        pergolaGroup.position.set(0, 0, 0);
+
+        const pergolaWoodMat = new THREE.MeshStandardMaterial({ color: 0xfffcf7, roughness: 0.4 });
+        const fairyLightMat = new THREE.MeshBasicMaterial({ color: 0xffea9f });
+        const pergolaVineMat = new THREE.MeshStandardMaterial({ color: 0x27593c, roughness: 0.65 });
+        const pergolaRoseMat = new THREE.MeshStandardMaterial({ color: 0xf99db3, roughness: 0.45 });
+
+        // 4 Main Pergola Pillars
+        const pergolaPosts = [
+          [-4.2, -0.6], [4.2, -0.6],
+          [-2.2, 1.4], [2.2, 1.4]
+        ];
+        pergolaPosts.forEach(pp => {
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.10, 3.4, 12), pergolaWoodMat);
+          post.position.set(pp[0], 1.7, pp[1]);
+          pergolaGroup.add(post);
+
+          // Climbing roses winding up post
+          for (let vi = 0; vi < 7; vi++) {
+            const vAng = vi * 1.5;
+            const vY = 0.4 + vi * 0.42;
+            const vLeaf = new THREE.Mesh(new THREE.SphereGeometry(0.065, 5, 4), pergolaVineMat);
+            vLeaf.position.set(pp[0] + Math.cos(vAng) * 0.12, vY, pp[1] + Math.sin(vAng) * 0.12);
+            const vRose = new THREE.Mesh(new THREE.SphereGeometry(0.055, 6, 6), pergolaRoseMat);
+            vRose.position.set(pp[0] + Math.cos(vAng + 0.3) * 0.13, vY + 0.06, pp[1] + Math.sin(vAng + 0.3) * 0.13);
+            pergolaGroup.add(vLeaf, vRose);
+          }
+        });
+
+        // Pergola Overhead Beams
+        const beamBack = new THREE.Mesh(new THREE.BoxGeometry(8.8, 0.12, 0.20), pergolaWoodMat);
+        beamBack.position.set(0, 3.35, -0.6);
+        const beamFront = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.12, 0.20), pergolaWoodMat);
+        beamFront.position.set(0, 3.35, 1.4);
+        pergolaGroup.add(beamBack, beamFront);
+
+        // Cross rafters
+        for (let cr = -4; cr <= 4; cr++) {
+          const rafter = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.10, 2.4), pergolaWoodMat);
+          rafter.position.set(cr * 1.0, 3.46, 0.4);
+          pergolaGroup.add(rafter);
+        }
+
+        // Draped Glowing Fairy Light Bulbs across the Pergola
+        const numBulbs = 24;
+        for (let fb = 0; fb < numBulbs; fb++) {
+          const uLight = fb / (numBulbs - 1);
+          const lx = (uLight - 0.5) * 8.2;
+          const lSag = Math.sin(uLight * Math.PI) * 0.28;
+          const ly = 3.25 - lSag;
+          const lz = -0.6 + Math.sin(uLight * Math.PI) * 1.8;
+
+          const bulbMesh = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), fairyLightMat);
+          bulbMesh.position.set(lx, ly, lz);
+          pergolaGroup.add(bulbMesh);
+        }
+        g.add(pergolaGroup);
+
+        // 3. Floating Gallery Header Plane
         const headerFloating = createFloatingTextPlane((ctx, w, h) => {
-          drawFloatingLine(ctx, 'MOMEN KEBAHAGIAAN • KETUK PIGURA 3D UNTUK MEMPERBESAR', w / 2, 75, '800 28px "Plus Jakarta Sans", sans-serif', '#ffe89e');
+          drawFloatingLine(ctx, 'MOMEN KEBAHAGIAAN • KETUK PIGURA UNTUK MEMPERBESAR', w / 2, 75, '800 28px "Plus Jakarta Sans", sans-serif', '#ffe89e');
           drawFloatingLine(ctx, 'Galeri Potret Kenangan', w / 2, 148, 'italic 700 64px "Playfair Display", serif', '#ffffff');
           drawFlourishDivider(ctx, w / 2, 188, 540, '#ffd97d');
         }, 7.6, 1.4, 1400, 240);
-        headerFloating.mesh.position.set(0, 3.05, -0.35);
+        headerFloating.mesh.position.set(0, 3.85, -0.55);
         g.add(headerFloating.mesh);
 
+        // Handcrafted wooden easel & frame materials
+        const easelWoodMat = new THREE.MeshStandardMaterial({ color: 0x4a2c1b, roughness: 0.65 }); // Rich Walnut Wood
+        const frameGoldMat = new THREE.MeshStandardMaterial({ color: 0xdfb14e, metalness: 0.68, roughness: 0.22 }); // Gilded Baroque Gold
+        const spotlightMat = new THREE.MeshStandardMaterial({ color: 0x2b1c13, roughness: 0.7 });
+        const spotlightGlowMat = new THREE.MeshBasicMaterial({ color: 0xffefb3 });
+        const planterWoodMat = new THREE.MeshStandardMaterial({ color: 0xfffbf5, roughness: 0.5 });
+        const flowerHydrangeaMat = new THREE.MeshStandardMaterial({ color: 0xffe2eb, roughness: 0.55 });
+        const flowerLeafMat = new THREE.MeshStandardMaterial({ color: 0x245838, roughness: 0.7 });
+
+        // 4. Render 6 High-Definition Romantic Artwork Canvases & Build  Easels
         GALLERY_DATA.forEach((item, idx) => {
           const tex = makeTexture((ctx, w, h) => {
-            const grad = ctx.createLinearGradient(0, 0, w, h);
-            grad.addColorStop(0, item.c1);
-            grad.addColorStop(1, item.c2);
-            ctx.fillStyle = grad;
+            // High-Resolution Painterly Canvas Rendering (720x940)
+            ctx.save();
+
+            // Background Atmospheric Gradient per Moment
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+            if (item.theme === 'twilight') {
+              bgGrad.addColorStop(0, '#2e1529');
+              bgGrad.addColorStop(0.38, '#702d4b');
+              bgGrad.addColorStop(0.70, '#c7585b');
+              bgGrad.addColorStop(1, '#f7b083');
+            } else if (item.theme === 'cafe') {
+              bgGrad.addColorStop(0, '#1c131d');
+              bgGrad.addColorStop(0.40, '#422424');
+              bgGrad.addColorStop(0.72, '#854b38');
+              bgGrad.addColorStop(1, '#d49868');
+            } else if (item.theme === 'proposal') {
+              bgGrad.addColorStop(0, '#0c1329');
+              bgGrad.addColorStop(0.42, '#182b52');
+              bgGrad.addColorStop(0.74, '#2e4e7e');
+              bgGrad.addColorStop(1, '#786899');
+            } else if (item.theme === 'formal') {
+              bgGrad.addColorStop(0, '#2b1b22');
+              bgGrad.addColorStop(0.45, '#5e3240');
+              bgGrad.addColorStop(0.80, '#9c5464');
+              bgGrad.addColorStop(1, '#d99ca6');
+            } else if (item.theme === 'walk') {
+              bgGrad.addColorStop(0, '#361b2b');
+              bgGrad.addColorStop(0.38, '#69334b');
+              bgGrad.addColorStop(0.75, '#ab5667');
+              bgGrad.addColorStop(1, '#f5c09e');
+            } else { // forever
+              bgGrad.addColorStop(0, '#24141d');
+              bgGrad.addColorStop(0.40, '#592e39');
+              bgGrad.addColorStop(0.75, '#a1634b');
+              bgGrad.addColorStop(1, '#e3b878');
+            }
+            ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, w, h);
 
-            ctx.strokeStyle = '#fff8f0';
-            ctx.lineWidth = 12;
-            ctx.strokeRect(22, 22, w - 44, h - 44);
+            // Canvas Linen Weave Texture
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.035)';
+            for (let ly = 0; ly < h; ly += 4) ctx.fillRect(0, ly, w, 1.5);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.035)';
+            for (let lx = 0; lx < w; lx += 4) ctx.fillRect(lx, 0, 1.5, h);
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.beginPath();
-            ctx.arc(w / 2, h * 0.44, 115, 0, Math.PI * 2);
-            ctx.fill();
+            // Atmospheric Celestial Artwork & Scenery
+            if (item.theme === 'twilight') {
+              // Glowing twilight sun & cherry blossoms
+              ctx.beginPath();
+              ctx.arc(w / 2, h * 0.44, 90, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(255, 235, 190, 0.45)';
+              ctx.fill();
 
-            ctx.fillStyle = '#3d1e28';
-            ctx.font = '700 42px "Playfair Display", serif';
+              // Sakura branches from top right
+              ctx.strokeStyle = '#2b141d';
+              ctx.lineWidth = 6;
+              ctx.beginPath();
+              ctx.moveTo(w + 10, h * 0.12);
+              ctx.bezierCurveTo(w * 0.7, h * 0.16, w * 0.55, h * 0.24, w * 0.35, h * 0.22);
+              ctx.stroke();
+
+              // Sakura petals
+              for (let p = 0; p < 28; p++) {
+                const px = (p * 59 + 40) % (w - 80) + 40;
+                const py = (p * 79 + 60) % (h * 0.6) + 40;
+                ctx.beginPath();
+                ctx.arc(px, py, 6 + (p % 4), 0, Math.PI * 2);
+                ctx.fillStyle = (p % 2 === 0) ? '#ffb3c6' : '#fff0f3';
+                ctx.fill();
+              }
+
+              // Hill slope and couple silhouette
+              ctx.fillStyle = '#220e18';
+              ctx.beginPath();
+              ctx.moveTo(0, h * 0.70);
+              ctx.bezierCurveTo(w * 0.3, h * 0.65, w * 0.7, h * 0.68, w, h * 0.64);
+              ctx.lineTo(w, h);
+              ctx.lineTo(0, h);
+              ctx.fill();
+
+              // Couple holding hands silhouette
+              const cx = w * 0.48;
+              const cy = h * 0.62;
+              // Groom
+              ctx.beginPath();
+              ctx.arc(cx - 24, cy - 72, 14, 0, Math.PI * 2); // Head
+              ctx.rect(cx - 36, cy - 58, 24, 46); // Torso
+              ctx.fill();
+              // Bride with flower hairpiece
+              ctx.beginPath();
+              ctx.arc(cx + 20, cy - 68, 13, 0, Math.PI * 2); // Head
+              ctx.moveTo(cx + 8, cy - 55);
+              ctx.lineTo(cx + 40, cy - 55);
+              ctx.lineTo(cx + 48, cy - 12);
+              ctx.lineTo(cx, cy - 12);
+              ctx.closePath();
+              ctx.fill(); // Flowing dress
+              // Cat sitting beside them
+              ctx.beginPath();
+              ctx.arc(cx + 70, cy - 18, 9, 0, Math.PI * 2); // Cat head
+              ctx.arc(cx + 70, cy - 6, 12, 0, Math.PI * 2); // Cat body
+              ctx.fill();
+              // Cat ears
+              ctx.beginPath();
+              ctx.moveTo(cx + 63, cy - 25);
+              ctx.lineTo(cx + 67, cy - 32);
+              ctx.lineTo(cx + 71, cy - 25);
+              ctx.fill();
+              ctx.beginPath();
+              ctx.moveTo(cx + 69, cy - 25);
+              ctx.lineTo(cx + 73, cy - 32);
+              ctx.lineTo(cx + 77, cy - 25);
+              ctx.fill();
+            } else if (item.theme === 'cafe') {
+              // String lights across cafe terrace
+              ctx.strokeStyle = 'rgba(255, 230, 160, 0.75)';
+              ctx.lineWidth = 2.5;
+              ctx.beginPath();
+              ctx.moveTo(0, h * 0.18);
+              ctx.bezierCurveTo(w * 0.3, h * 0.24, w * 0.7, h * 0.24, w, h * 0.18);
+              ctx.stroke();
+
+              for (let bl = 1; bl <= 7; bl++) {
+                const bx = (bl / 8) * w;
+                const by = h * 0.18 + Math.sin((bl / 8) * Math.PI) * (h * 0.05);
+                ctx.beginPath();
+                ctx.arc(bx, by, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffea9f';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(bx, by, 18, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 234, 159, 0.25)';
+                ctx.fill();
+              }
+
+              // Arched cafe bistro window silhouette
+              ctx.fillStyle = '#221118';
+              ctx.fillRect(w * 0.12, h * 0.28, w * 0.76, h * 0.44);
+              ctx.beginPath();
+              ctx.arc(w * 0.5, h * 0.28, w * 0.38, Math.PI, 0);
+              ctx.fill();
+
+              // Warm glowing interior inside window
+              ctx.fillStyle = '#fce4a6';
+              ctx.fillRect(w * 0.16, h * 0.32, w * 0.68, h * 0.38);
+              ctx.beginPath();
+              ctx.arc(w * 0.5, h * 0.32, w * 0.34, Math.PI, 0);
+              ctx.fill();
+
+              // Window pane mullions
+              ctx.strokeStyle = '#3d1e28';
+              ctx.lineWidth = 7;
+              ctx.beginPath();
+              ctx.moveTo(w * 0.5, h * 0.08); ctx.lineTo(w * 0.5, h * 0.70);
+              ctx.moveTo(w * 0.16, h * 0.48); ctx.lineTo(w * 0.84, h * 0.48);
+              ctx.stroke();
+
+              // Couple silhouette enjoying coffee at cafe table
+              ctx.fillStyle = '#2b141d';
+              ctx.beginPath();
+              ctx.arc(w * 0.34, h * 0.48, 14, 0, Math.PI * 2);
+              ctx.arc(w * 0.66, h * 0.48, 13, 0, Math.PI * 2);
+              ctx.fill();
+              // Table with teacups
+              ctx.fillRect(w * 0.38, h * 0.56, w * 0.24, 8);
+              ctx.fillRect(w * 0.48, h * 0.58, 8, 50);
+            } else if (item.theme === 'proposal') {
+              // Starry indigo night with crescent moon
+              ctx.beginPath();
+              ctx.arc(w * 0.75, h * 0.22, 34, 0, Math.PI * 2);
+              ctx.fillStyle = '#fff4cf';
+              ctx.fill();
+              ctx.beginPath();
+              ctx.arc(w * 0.70, h * 0.20, 30, 0, Math.PI * 2);
+              ctx.fillStyle = '#111e3b';
+              ctx.fill();
+
+              // Sparkling stars
+              for (let s = 0; s < 36; s++) {
+                const sx = (s * 47 + 19) % (w - 60) + 30;
+                const sy = (s * 61 + 29) % (h * 0.55) + 30;
+                ctx.beginPath();
+                ctx.arc(sx, sy, (s % 3 === 0) ? 2.5 : 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = (s % 4 === 0) ? '#ffd978' : '#ffffff';
+                ctx.fill();
+              }
+
+              // Mountain ridge silhouette
+              ctx.fillStyle = '#0b1222';
+              ctx.beginPath();
+              ctx.moveTo(0, h * 0.62);
+              ctx.lineTo(w * 0.35, h * 0.54);
+              ctx.lineTo(w * 0.68, h * 0.60);
+              ctx.lineTo(w, h * 0.56);
+              ctx.lineTo(w, h);
+              ctx.lineTo(0, h);
+              ctx.fill();
+
+              // Groom proposing on one knee with ring box!
+              const px = w * 0.42;
+              const py = h * 0.65;
+              ctx.fillStyle = '#192642';
+              // Groom kneeling
+              ctx.beginPath();
+              ctx.arc(px - 32, py - 36, 12, 0, Math.PI * 2); // Head
+              ctx.rect(px - 42, py - 24, 20, 28); // Body
+              ctx.fill();
+              // Glowing Ring Box!
+              ctx.beginPath();
+              ctx.arc(px - 10, py - 18, 5, 0, Math.PI * 2);
+              ctx.fillStyle = '#ffe58a';
+              ctx.fill();
+              ctx.beginPath();
+              ctx.arc(px - 10, py - 18, 12, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(255, 235, 140, 0.45)';
+              ctx.fill();
+
+              // Bride standing with hands to heart
+              ctx.fillStyle = '#192642';
+              ctx.beginPath();
+              ctx.arc(px + 28, py - 52, 12, 0, Math.PI * 2); // Head
+              ctx.moveTo(px + 16, py - 40);
+              ctx.lineTo(px + 40, py - 40);
+              ctx.lineTo(px + 46, py);
+              ctx.lineTo(px + 10, py);
+              ctx.closePath();
+              ctx.fill();
+            } else if (item.theme === 'formal') {
+              // Royal Wedding Pre-Wedding Portrait (Bride in lace gown & veil, Groom in tuxedo)
+              const cx = w * 0.5;
+              const cy = h * 0.52;
+
+              // Soft luminous studio halo
+              ctx.beginPath();
+              ctx.arc(cx, cy - 40, 150, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(255, 245, 230, 0.22)';
+              ctx.fill();
+
+              // Groom in sharp midnight tuxedo & bow tie
+              ctx.fillStyle = '#1b1218';
+              ctx.beginPath();
+              ctx.arc(cx - 38, cy - 90, 16, 0, Math.PI * 2); // Head
+              ctx.rect(cx - 56, cy - 74, 36, 120); // Suit
+              ctx.fill();
+              // White tuxedo shirt & gold boutonniere
+              ctx.fillStyle = '#fffdf9';
+              ctx.beginPath();
+              ctx.moveTo(cx - 44, cy - 74);
+              ctx.lineTo(cx - 32, cy - 74);
+              ctx.lineTo(cx - 38, cy - 36);
+              ctx.closePath();
+              ctx.fill();
+              ctx.fillStyle = '#dfb14e';
+              ctx.beginPath();
+              ctx.arc(cx - 50, cy - 58, 4, 0, Math.PI * 2);
+              ctx.fill();
+
+              // Bride in ivory royal gown with floral lace veil
+              ctx.fillStyle = '#fff8f0';
+              ctx.beginPath();
+              ctx.arc(cx + 34, cy - 86, 15, 0, Math.PI * 2); // Head
+              ctx.moveTo(cx + 18, cy - 70);
+              ctx.lineTo(cx + 50, cy - 70);
+              ctx.lineTo(cx + 82, cy + 80);
+              ctx.lineTo(cx - 2, cy + 80);
+              ctx.closePath();
+              ctx.fill(); // Gown
+              // Sheer lace veil
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.arc(cx + 34, cy - 90, 22, Math.PI, 0);
+              ctx.lineTo(cx + 66, cy + 30);
+              ctx.stroke();
+              // Peony bouquet
+              ctx.fillStyle = '#fca0b5';
+              ctx.beginPath();
+              ctx.arc(cx + 10, cy - 25, 12, 0, Math.PI * 2);
+              ctx.arc(cx + 18, cy - 20, 10, 0, Math.PI * 2);
+              ctx.fill();
+            } else if (item.theme === 'walk') {
+              // Wedding aisle runner with floral arbor archway
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+              ctx.lineWidth = 7;
+              ctx.beginPath();
+              ctx.arc(w * 0.5, h * 0.38, w * 0.32, Math.PI, 0);
+              ctx.stroke();
+
+              // Flowers on wedding arch
+              for (let fa = 0; fa < 22; fa++) {
+                const fang = Math.PI + (fa / 21) * Math.PI;
+                const fx = w * 0.5 + Math.cos(fang) * (w * 0.32);
+                const fy = h * 0.38 + Math.sin(fang) * (w * 0.32);
+                ctx.beginPath();
+                ctx.arc(fx, fy, 8, 0, Math.PI * 2);
+                ctx.fillStyle = (fa % 2 === 0) ? '#ffb8cb' : '#ffffff';
+                ctx.fill();
+              }
+
+              // Red carpet runner leading away into distance
+              ctx.fillStyle = '#9e142b';
+              ctx.beginPath();
+              ctx.moveTo(w * 0.44, h * 0.48);
+              ctx.lineTo(w * 0.56, h * 0.48);
+              ctx.lineTo(w * 0.78, h * 0.85);
+              ctx.lineTo(w * 0.22, h * 0.85);
+              ctx.closePath();
+              ctx.fill();
+
+              // Couple walking hand in hand into the sunset
+              const cx = w * 0.5;
+              const cy = h * 0.56;
+              ctx.fillStyle = '#24141d';
+              ctx.beginPath();
+              ctx.arc(cx - 14, cy - 42, 11, 0, Math.PI * 2);
+              ctx.arc(cx + 14, cy - 40, 10, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillRect(cx - 22, cy - 30, 16, 40);
+              ctx.fillStyle = '#fff9f2';
+              ctx.beginPath();
+              ctx.moveTo(cx + 6, cy - 30);
+              ctx.lineTo(cx + 26, cy - 30);
+              ctx.lineTo(cx + 34, cy + 20);
+              ctx.lineTo(cx - 2, cy + 20);
+              ctx.closePath();
+              ctx.fill();
+            } else { // forever
+              // Golden Rings & Eternal Laurel Wreath
+              const cx = w * 0.5;
+              const cy = h * 0.46;
+
+              // Glowing Wedding Bands
+              ctx.strokeStyle = '#ffd700';
+              ctx.lineWidth = 10;
+              ctx.beginPath();
+              ctx.arc(cx - 24, cy, 42, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.arc(cx + 24, cy, 42, 0, Math.PI * 2);
+              ctx.stroke();
+
+              // Sparkling diamond on bride's ring
+              ctx.fillStyle = '#ffffff';
+              ctx.beginPath();
+              ctx.arc(cx + 24, cy - 42, 9, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#ffeaa7';
+              ctx.beginPath();
+              ctx.arc(cx + 24, cy - 42, 18, 0, Math.PI * 2);
+              ctx.fill();
+
+              // Classical golden laurel branch wreath
+              ctx.strokeStyle = 'rgba(235, 195, 95, 0.8)';
+              ctx.lineWidth = 4;
+              [-1, 1].forEach(side => {
+                ctx.beginPath();
+                ctx.arc(cx, cy + 10, 110, side === 1 ? -Math.PI * 0.4 : Math.PI * 0.4, side === 1 ? Math.PI * 0.4 : -Math.PI * 0.4, side === -1);
+                ctx.stroke();
+
+                for (let l = 0; l < 8; l++) {
+                  const lang = (side === 1 ? -0.8 : 0.8) + l * 0.22 * side;
+                  const lx = cx + Math.cos(lang) * 110;
+                  const ly = cy + 10 + Math.sin(lang) * 110;
+                  ctx.beginPath();
+                  ctx.ellipse(lx, ly, 10, 5, lang, 0, Math.PI * 2);
+                  ctx.fillStyle = '#dfb14e';
+                  ctx.fill();
+                }
+              });
+            }
+
+            // Ornate Gilded Baroque Border & Corner Scrollwork on Canvas
+            const margin = 28;
+            ctx.strokeStyle = '#dfb14e';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(margin, margin, w - margin * 2, h - margin * 2);
+            ctx.strokeStyle = 'rgba(255, 235, 160, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(margin + 8, margin + 8, w - (margin + 8) * 2, h - (margin + 8) * 2);
+
+            // 4 Corner Gold Rosettes
+            [[margin, margin], [w - margin, margin], [margin, h - margin], [w - margin, h - margin]].forEach(pt => {
+              ctx.beginPath();
+              ctx.arc(pt[0], pt[1], 10, 0, Math.PI * 2);
+              ctx.fillStyle = '#dfb14e';
+              ctx.fill();
+              ctx.beginPath();
+              ctx.arc(pt[0], pt[1], 4, 0, Math.PI * 2);
+              ctx.fillStyle = '#fff4cf';
+              ctx.fill();
+            });
+
+            // Bottom Typography Badge & Caption
+            ctx.fillStyle = 'rgba(20, 8, 14, 0.72)';
+            ctx.fillRect(margin + 12, h * 0.76, w - (margin + 12) * 2, h * 0.17);
+
+            ctx.fillStyle = '#ffd978';
+            ctx.font = '700 28px "Playfair Display", serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Raka & Nisa 🌸🐾', w / 2, h * 0.46);
+            ctx.fillText(item.title, w / 2, h * 0.82);
 
             ctx.fillStyle = '#fffdf9';
-            ctx.font = '700 23px "Plus Jakarta Sans", sans-serif';
-            ctx.fillText(item.caption, w / 2, h * 0.84);
-          }, 640, 460);
+            ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText(item.caption, w / 2, h * 0.88);
+
+            ctx.restore();
+          }, 720, 940);
 
           galleryDataUrls.push(tex.image.toDataURL('image/png'));
 
+          //  Semicircular Exhibition Arc for the 6 Easels
           const frameGroup = new THREE.Group();
-          const xOffset = (idx - 1.5) * 1.82;
-          const zOffset = Math.abs(idx - 1.5) * 0.32;
-          frameGroup.position.set(xOffset, 1.15, zOffset);
-          frameGroup.rotation.y = (1.5 - idx) * 0.16;
+          const angle = (idx - 2.5) * 0.30 + (idx < 3 ? -0.28 : 0.28); // Revisi 11: tengah kosong, 3 kiri 3 kanan, kucing lewat tengah
+          const radius = 5.2; // Revisi 10: busur galeri diperlebar, bingkai tengah menjauh dari jalan tengah
+          const xOffset = Math.sin(angle) * radius;
+          const zOffset = Math.cos(angle) * radius - 3.4;
 
-          const goldRim = new THREE.Mesh(
-            new THREE.BoxGeometry(1.62, 2.05, 0.08),
-            new THREE.MeshStandardMaterial({ color: 0xf4b942, roughness: 0.25, metalness: 0.6 })
+          frameGroup.position.set(xOffset, 0, zOffset);
+          frameGroup.rotation.y = -angle;
+
+          // A. Handcrafted Wooden Artist Easel
+          const easelGroup = new THREE.Group();
+          
+          // Front Left Leg & Front Right Leg (angled)
+          const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.038, 2.3, 8), easelWoodMat);
+          leftLeg.position.set(-0.55, 1.1, 0.05);
+          leftLeg.rotation.z = -0.16;
+          leftLeg.rotation.x = -0.12;
+
+          const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.038, 2.3, 8), easelWoodMat);
+          rightLeg.position.set(0.55, 1.1, 0.05);
+          rightLeg.rotation.z = 0.16;
+          rightLeg.rotation.x = -0.12;
+
+          // Rear Prop Leg (angled back)
+          const backLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.034, 2.2, 8), easelWoodMat);
+          backLeg.position.set(0, 1.05, -0.65);
+          backLeg.rotation.x = 0.38;
+
+          // Horizontal Support Shelf for Frame
+          const shelf = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.08, 0.16), easelWoodMat);
+          shelf.position.set(0, 1.12, 0.16);
+
+          // Center Vertical Mast with Top Clamp
+          const mast = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.4, 0.06), easelWoodMat);
+          mast.position.set(0, 1.3, -0.05);
+          mast.rotation.x = -0.12;
+
+          const clamp = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.06, 0.12), easelWoodMat);
+          clamp.position.set(0, 2.32, 0.05);
+
+          easelGroup.add(leftLeg, rightLeg, backLeg, shelf, mast, clamp);
+          frameGroup.add(easelGroup);
+
+          // B.  Ornate Gilded Baroque Gold Frame & Canvas
+          const artGroup = new THREE.Group();
+          artGroup.position.set(0, 1.72, 0.18);
+          artGroup.rotation.x = -0.12; // Leaning back naturally on easel
+
+          // Molded Gold Frame
+          const goldFrame = new THREE.Mesh(
+            new THREE.BoxGeometry(1.52, 1.95, 0.08),
+            frameGoldMat
           );
-          frameGroup.add(goldRim);
+          artGroup.add(goldFrame);
 
+          // Gold Corner Rosettes
+          [[-0.72, -0.92], [0.72, -0.92], [-0.72, 0.92], [0.72, 0.92]].forEach(ro => {
+            const rosette = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.09, 8), frameGoldMat);
+            rosette.rotation.x = Math.PI / 2;
+            rosette.position.set(ro[0], ro[1], 0.02);
+            artGroup.add(rosette);
+          });
+
+          // Canvas Painting Surface
           const photoPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(1.46, 1.88),
-            new THREE.MeshStandardMaterial({ map: tex, roughness: 0.3 })
+            new THREE.PlaneGeometry(1.36, 1.78),
+            new THREE.MeshStandardMaterial({ map: tex, roughness: 0.32, metalness: 0.05 })
           );
-          photoPlane.position.z = 0.05;
+          photoPlane.position.z = 0.045;
           photoPlane.userData = {
             action: 'openGallery',
             index: idx
           };
           clickableObjects.push(photoPlane);
-          frameGroup.add(photoPlane);
+          artGroup.add(photoPlane);
+
+          frameGroup.add(artGroup);
+
+          // C. Antique Brass Uplight Spotlight at the foot of each easel
+          const spotGroup = new THREE.Group();
+          spotGroup.position.set(0, 0.04, 0.72);
+          const spotCan = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.16, 8), spotlightMat);
+          spotCan.rotation.x = -0.45; // Angled up at painting
+          const spotGlass = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), spotlightGlowMat);
+          spotGlass.position.set(0, 0.08, -0.06);
+          spotGroup.add(spotCan, spotGlass);
+          frameGroup.add(spotGroup);
+
+          // D. Elegant Flower Box at base of each easel
+          const flowerBox = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.22, 0.32), planterWoodMat);
+          flowerBox.position.set(0, 0.11, 0.15);
+          frameGroup.add(flowerBox);
+
+          // Peonies & Hydrangeas in flower box
+          for (let fl = 0; fl < 5; fl++) {
+            const flX = (fl - 2) * 0.26;
+            const peony = new THREE.Mesh(new THREE.SphereGeometry(0.10, 8, 8), flowerHydrangeaMat);
+            peony.position.set(flX, 0.28, 0.15 + (fl % 2 === 0 ? 0.04 : -0.04));
+            const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 4), flowerLeafMat);
+            leaf.scale.set(1.4, 0.3, 1.1);
+            leaf.position.set(flX + 0.08, 0.24, 0.15);
+            frameGroup.add(peony, leaf);
+          }
 
           g.add(frameGroup);
         });
@@ -2427,17 +3608,26 @@
         const stop = STOPS[6];
         const g = new THREE.Group();
         g.position.copy(stop.pos);
+        /* Revisi 4: panggung DINAIKKAN 0,32 menjadi panggung terangkat (dais).
+           Sebelumnya panggung dan jalan berada di ketinggian yang sama persis,
+           sehingga jalan membelah tengah panggung dan menabrak ornamen, kue,
+           dan cincin di atasnya di semua pos. Sekarang jalan lewat DI BAWAH
+           panggung (bawah panggung menyentuh jalan), permukaan panggung bersih
+           dan ornamennya tidak lagi dipotong jalan. Semua isi pos ikut naik
+           bersama grupnya, jadi tidak ada yang tenggelam ke dalam panggung. */
+        g.position.y += 0.32;
         orientToCamera(g, stop.camPos);
 
         const base = new THREE.Mesh(
           new THREE.CylinderGeometry(4.2, 4.5, 0.3, 36),
           new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.65 })
         );
-        base.position.y = -0.6;
-        g.add(base);
+        base.position.y = -0.15;
+        /* Revisi 5: piring bulat Pos 6 dihapus. */
+        decorateGardenPatch(g, 4.2, 0.0);
 
         const chest = new THREE.Group();
-        chest.position.set(-0.95, -0.35, 0.95);
+        chest.position.set(-1.8, 0.02, 0.95); // Revisi 10: peti lebih ke pinggir
         const boxWood = new THREE.Mesh(
           new THREE.BoxGeometry(1.35, 0.7, 0.9),
           new THREE.MeshStandardMaterial({ color: 0x8f394d, roughness: 0.5 })
@@ -2454,14 +3644,14 @@
         chest.add(goldPile);
         g.add(chest);
 
-        const luckyCat = createCat3D({
+        const luckyCat = createCat({
           color: 0xfff8f0,
           stripeColor: 0xf4b942,
           scale: 1.0,
           crown: true,
-          label: 'Meow! Terima kasih atas doa & tanda kasih untuk Raka & Nisa! 🐾🎁'
+          label: 'Meow! Terima kasih atas doa & tanda kasih untuk Mr Pengantin & Mrs Pengantin!'
         });
-        luckyCat.position.set(1.05, -0.4, 0.95);
+        luckyCat.position.set(1.8, 0.04, 0.95); // Revisi 10: kucing keberuntungan lebih ke pinggir
         luckyCat.rotation.y = -0.25;
         g.add(luckyCat);
 
@@ -2470,10 +3660,10 @@
           drawFloatingLine(ctx, 'Bank BCA • 1234567890', w / 2, 170, '700 68px "Playfair Display", serif', '#ffffff');
           drawFlourishDivider(ctx, w / 2, 215, 560, '#ffd97d');
           drawFloatingLine(ctx, 'a.n. Mr Pengantin & Mrs Pengantin', w / 2, 280, '700 38px "Plus Jakarta Sans", sans-serif', '#fffdf7');
-          drawFloatingLine(ctx, '🎁 Ketuk Teks Melayang Ini untuk Menyalin Nomor Rekening', w / 2, 355, '800 32px "Plus Jakarta Sans", sans-serif', '#ffd97d');
+          drawFloatingLine(ctx, 'Ketuk Teks Melayang Ini untuk Menyalin Nomor Rekening', w / 2, 355, '800 32px "Plus Jakarta Sans", sans-serif', '#ffd97d');
         }, 7.6, 2.7, 1500, 440);
 
-        giftFloating.mesh.position.set(0, 2.15, -0.4);
+        giftFloating.mesh.position.set(0, 2.55, -0.4);
         giftFloating.mesh.userData = {
           action: 'copyBank',
           text: '1234567890'
@@ -2487,7 +3677,7 @@
 
       const wishesList = [
         'Budi & Keluarga — Semoga menjadi keluarga Sakinah Mawaddah Warahmah!',
-        'Siti Rahma — Bahagia selalu Raka & Nisa sampai kakek nenek!',
+        'Siti Rahma — Bahagia selalu Mr Pengantin & Mrs Pengantin sampai kakek nenek!',
         'Dimas Aditya — Selamat menempuh hidup baru di taman bahagia!',
         'Ayu Lestari — Semoga diberkahi kebahagiaan dunia & akhirat!'
       ];
@@ -2498,14 +3688,23 @@
         const stop = STOPS[7];
         const g = new THREE.Group();
         g.position.copy(stop.pos);
+        /* Revisi 4: panggung DINAIKKAN 0,32 menjadi panggung terangkat (dais).
+           Sebelumnya panggung dan jalan berada di ketinggian yang sama persis,
+           sehingga jalan membelah tengah panggung dan menabrak ornamen, kue,
+           dan cincin di atasnya di semua pos. Sekarang jalan lewat DI BAWAH
+           panggung (bawah panggung menyentuh jalan), permukaan panggung bersih
+           dan ornamennya tidak lagi dipotong jalan. Semua isi pos ikut naik
+           bersama grupnya, jadi tidak ada yang tenggelam ke dalam panggung. */
+        g.position.y += 0.32;
         orientToCamera(g, stop.camPos);
 
         const base = new THREE.Mesh(
           new THREE.CylinderGeometry(4.8, 5.2, 0.32, 36),
           new THREE.MeshStandardMaterial({ color: 0xf7e3b5, roughness: 0.45 })
         );
-        base.position.y = -0.6;
-        g.add(base);
+        base.position.y = -0.16;
+        /* Revisi 5: piring bulat Pos 7 dihapus. */
+        decorateGardenPatch(g, 4.8, 0.0);
 
         drawFloatingWishesFn = function (ctx, w, h) {
           ctx.clearRect(0, 0, w, h);
@@ -2516,29 +3715,20 @@
           const recent = wishesList.slice(-4);
           recent.forEach((wish, i) => {
             const y = 262 + i * 74;
-            drawFloatingLine(ctx, '❀  ' + wish + '  ❀', w / 2, y, '700 32px "Plus Jakarta Sans", sans-serif', i % 2 === 0 ? '#fffdf7' : '#ffe89e');
+            drawFloatingLine(ctx, wish, w / 2, y, '700 32px "Plus Jakarta Sans", sans-serif', i % 2 === 0 ? '#fffdf7' : '#ffe89e');
           });
         };
 
-        wishingFloatingObj = createFloatingTextPlane(drawFloatingWishesFn, 8.2, 3.3, 1600, 560);
-        wishingFloatingObj.mesh.position.set(0, 2.35, -0.5);
+        wishingFloatingObj = createFloatingTextPlane(drawFloatingWishesFn, 6.4, 2.6, 1600, 560); // Revisi 11: teks diperkecil supaya tidak kepotong di layar HP portrait
+        wishingFloatingObj.mesh.position.set(0, 2.75, -0.5);
         g.add(wishingFloatingObj.mesh);
 
-        const finaleCouple = createCouple3D({ scale: 0.95 });
-        finaleCouple.position.set(-1.55, -0.4, 0.85);
+        const finaleCouple = createCouple({ scale: 0.95 });
+        finaleCouple.position.set(-1.35, 0.02, 0.85); // Revisi 11: pengantin akhir lebih dekat ke tengah, supaya kelihatan bersama kucing di satu frame HP
         finaleCouple.rotation.y = 0.25;
         g.add(finaleCouple);
 
-        const finaleCat = createCat3D({
-          color: 0xf49742,
-          stripeColor: 0xc96b22,
-          scale: 0.95,
-          crown: true,
-          label: 'Meow! Tulis doa restumu di kolom bawah ya, nanti langsung melayang di taman! 🐾🌸'
-        });
-        finaleCat.position.set(1.6, -0.4, 0.95);
-        finaleCat.rotation.y = -0.28;
-        g.add(finaleCat);
+        /* Revisi: kucing kanan di Pos 7 dihapus sesuai permintaan; pasangan pengantin tetap. */
 
         scene.add(g);
       }
@@ -2576,12 +3766,15 @@
       let userYaw = 0;
       let userPitch = 0;
       let userZoom = 0;
+      let yawVelocity = 0;
+      let pitchVelocity = 0;
       let isDragging = false;
       let prevX = 0;
       let prevY = 0;
 
       const toggleBtn = document.getElementById('toggleBtn');
       const spinBtn = document.getElementById('spinBtn');
+      const hudSpinBtn = document.getElementById('hudSpinBtn');
       const startJourneyBtn = document.getElementById('startJourneyBtn');
       const hudStopLabel = document.getElementById('hudStopLabel');
       const toastEl = document.getElementById('toast');
@@ -2620,7 +3813,7 @@
         drawRealInvitationLetter(ctx, 1100, 640);
         ctx.restore();
         letterCardMesh.material.map.needsUpdate = true;
-        heroCat.userData.label = 'Meow! Surat undangan untuk ' + guestName + ' sudah siap dibaca! 🐾💌';
+        heroCat.userData.label = 'Meow! Surat undangan untuk ' + guestName + ' sudah siap dibaca!';
       }
 
       const guestModal = document.getElementById('guestModal');
@@ -2639,7 +3832,7 @@
           guestName = val;
           refreshLetterTexture();
           if (!isOpened) setEnvelopeOpen(true);
-          showToast('Nama tamu pada Kertas Surat diperbarui: ' + guestName + ' 💌');
+          showToast('Nama tamu pada Kertas Surat diperbarui: ' + guestName);
         }
         guestModal.classList.remove('open');
       });
@@ -2650,22 +3843,40 @@
         if (open) {
           document.body.classList.remove('locked');
           document.body.classList.add('opened');
-          toggleBtn.textContent = '✉ Tutup Surat';
+          toggleBtn.textContent = 'Tutup Surat';
           spawnHeartBurst(new THREE.Vector3(0, 1.4, 0.5), 10);
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' });
           document.body.classList.add('locked');
           document.body.classList.remove('opened', 'scrolled', 'rsvp-on');
-          toggleBtn.textContent = '✉ Buka Surat Undangan';
+          toggleBtn.textContent = 'Buka Surat Undangan';
         }
       }
 
       toggleBtn.addEventListener('click', () => setEnvelopeOpen(!isOpened));
 
+      function updateSpinBtnState() {
+        if (spinBtn) {
+          spinBtn.setAttribute('aria-pressed', String(autoSpin));
+          spinBtn.textContent = autoSpin ? '⏸ Hentikan Putaran' : '↻ Putar Otomatis';
+        }
+        if (hudSpinBtn) {
+          hudSpinBtn.classList.toggle('active', autoSpin);
+          hudSpinBtn.textContent = autoSpin ? '⏸ Jeda Putar' : '↻ Putar Scene';
+        }
+      }
+
       spinBtn.addEventListener('click', () => {
         autoSpin = !autoSpin;
-        spinBtn.setAttribute('aria-pressed', String(autoSpin));
+        updateSpinBtnState();
       });
+
+      if (hudSpinBtn) {
+        hudSpinBtn.addEventListener('click', () => {
+          autoSpin = !autoSpin;
+          updateSpinBtnState();
+        });
+      }
 
       function scrollToStop(idx) {
         if (!isOpened) setEnvelopeOpen(true);
@@ -2695,14 +3906,31 @@
 
       function showLightbox(idx) {
         currentGalleryIdx = (idx + GALLERY_DATA.length) % GALLERY_DATA.length;
+        const item = GALLERY_DATA[currentGalleryIdx];
         lbImg.src = galleryDataUrls[currentGalleryIdx];
-        lbCap.textContent = GALLERY_DATA[currentGalleryIdx].caption;
+        lbCap.textContent = item.caption;
+        const lbCounter = document.getElementById('lbCounter');
+        if (lbCounter) lbCounter.textContent = 'Momen ' + (currentGalleryIdx + 1) + ' dari ' + GALLERY_DATA.length;
+        const lbSub = document.getElementById('lbSub');
+        if (lbSub) lbSub.textContent = item.sub || '';
         lightbox.classList.add('open');
       }
 
       document.getElementById('lbClose').addEventListener('click', () => lightbox.classList.remove('open'));
       document.getElementById('lbPrev').addEventListener('click', () => showLightbox(currentGalleryIdx - 1));
       document.getElementById('lbNext').addEventListener('click', () => showLightbox(currentGalleryIdx + 1));
+
+      // Close on backdrop click & Keyboard Navigation (Left / Right / Esc)
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) lightbox.classList.remove('open');
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('open')) return;
+        if (e.key === 'Escape') lightbox.classList.remove('open');
+        else if (e.key === 'ArrowLeft') showLightbox(currentGalleryIdx - 1);
+        else if (e.key === 'ArrowRight') showLightbox(currentGalleryIdx + 1);
+      });
 
       document.getElementById('rsvpBar').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -2724,37 +3952,19 @@
         }
         triggerCatTrick(guideCat);
         spawnHeartBurst(STOPS[7].pos.clone().add(new THREE.Vector3(0, 2, 1)), 12);
-        showToast('Terima kasih! Doa restu Anda telah melayang di Taman 3D 🌸💖');
+        showToast('Terima kasih! Doa restu Anda telah melayang di Taman');
       });
 
       const raycaster = new THREE.Raycaster();
       const pointer = new THREE.Vector2();
       let downTime = 0;
+      let dragStartX = 0;
+      let dragStartY = 0;
+      let totalDragDist = 0;
 
-      canvas.addEventListener('pointerdown', (e) => {
-        isDragging = true;
-        prevX = e.clientX;
-        prevY = e.clientY;
-        downTime = performance.now();
-      });
-
-      window.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
-        const dx = e.clientX - prevX;
-        const dy = e.clientY - prevY;
-        prevX = e.clientX;
-        prevY = e.clientY;
-        userYaw -= dx * 0.0045;
-        userPitch = Math.max(-0.35, Math.min(0.45, userPitch - dy * 0.0035));
-      });
-
-      window.addEventListener('pointerup', (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        if (performance.now() - downTime > 240) return;
-
-        pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-        pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      function handleTapRaycast(clientX, clientY) {
+        pointer.x = (clientX / window.innerWidth) * 2 - 1;
+        pointer.y = -(clientY / window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(pointer, camera);
 
         const hits = raycaster.intersectObjects(clickableObjects, true);
@@ -2769,11 +3979,11 @@
             return;
           }
           if (obj.userData.action === 'copyBank') {
-            copyToClipboard(obj.userData.text, 'Nomor Rekening BCA 1234567890 berhasil disalin! 🎁');
+            copyToClipboard(obj.userData.text, 'Nomor Rekening BCA 1234567890 berhasil disalin!');
             return;
           }
           if (obj.userData.action === 'copyLocation') {
-            copyToClipboard(obj.userData.text, 'Alamat Gedung Balai Kartini Bandung berhasil disalin! 📍');
+            copyToClipboard(obj.userData.text, 'Alamat Gedung Balai Kartini Bandung berhasil disalin!');
             return;
           }
         }
@@ -2784,7 +3994,111 @@
             setEnvelopeOpen(!isOpened);
           }
         }
+      }
+
+      // Revisi 12: bug surat nutup lagi di HP — satu ketukan tercatat dua kali:
+      // sentuhan (touchend) membuka surat, lalu klik sintetis mouse yang dikirim
+      // browser HP sesudahnya mengetuk lagi dan menutupnya. Abaikan event mouse
+      // yang datang <700 ms sesudah sentuhan terakhir.
+      let lastTouchEndTime = 0;
+      // Mouse drag controls for Desktop
+      window.addEventListener('mousedown', (e) => {
+        if (performance.now() - lastTouchEndTime < 700) return;
+        if (e.target.closest('button, input, form, a, #lightbox, #guestModal')) return;
+        isDragging = true;
+        prevX = e.clientX;
+        prevY = e.clientY;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        totalDragDist = 0;
+        downTime = performance.now();
+        yawVelocity = 0;
+        pitchVelocity = 0;
       });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - prevX;
+        const dy = e.clientY - prevY;
+        prevX = e.clientX;
+        prevY = e.clientY;
+        totalDragDist += Math.hypot(dx, dy);
+
+        userYaw -= dx * 0.0052;
+        userPitch = Math.max(-0.55, Math.min(0.65, userPitch - dy * 0.004));
+        yawVelocity = -dx * 0.0042;
+        pitchVelocity = -dy * 0.0032;
+      });
+
+      window.addEventListener('mouseup', (e) => {
+        if (performance.now() - lastTouchEndTime < 700) { isDragging = false; return; }
+        if (!isDragging) return;
+        isDragging = false;
+        if (totalDragDist < 8 && performance.now() - downTime < 280) {
+          handleTapRaycast(e.clientX, e.clientY);
+        }
+      });
+
+      // Mobile Touch drag controls (Horizontal rotate 360° & Vertical scroll)
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchLastX = 0;
+      let touchLastY = 0;
+      let touchIsOrbit = false;
+      let touchStartTime = 0;
+
+      window.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          const t = e.touches[0];
+          if (e.target.closest('button, input, form, a, #lightbox, #guestModal')) return;
+          touchStartX = t.clientX;
+          touchStartY = t.clientY;
+          touchLastX = t.clientX;
+          touchLastY = t.clientY;
+          touchIsOrbit = false;
+          touchStartTime = performance.now();
+          isDragging = true;
+          prevX = t.clientX;
+          prevY = t.clientY;
+          yawVelocity = 0;
+          pitchVelocity = 0;
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const t = e.touches[0];
+        const dx = t.clientX - touchLastX;
+        const dy = t.clientY - touchLastY;
+        const totalDx = Math.abs(t.clientX - touchStartX);
+        const totalDy = Math.abs(t.clientY - touchStartY);
+
+        // Detect if user intends to rotate the  scene horizontally
+        if (!touchIsOrbit && totalDx > 8 && totalDx > totalDy * 0.7) {
+          touchIsOrbit = true;
+        }
+
+        if (touchIsOrbit) {
+          if (e.cancelable) e.preventDefault();
+          userYaw -= dx * 0.0068;
+          userPitch = Math.max(-0.55, Math.min(0.65, userPitch - dy * 0.0048));
+          yawVelocity = -dx * 0.005;
+          pitchVelocity = -dy * 0.0035;
+        }
+        touchLastX = t.clientX;
+        touchLastY = t.clientY;
+        prevX = t.clientX;
+        prevY = t.clientY;
+      }, { passive: false });
+
+      window.addEventListener('touchend', (e) => {
+        lastTouchEndTime = performance.now();
+        if (!isDragging) return;
+        isDragging = false;
+        if (!touchIsOrbit && performance.now() - touchStartTime < 260) {
+          handleTapRaycast(touchLastX, touchLastY);
+        }
+      }, { passive: true });
 
       window.addEventListener('scroll', () => {
         const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -2817,6 +4131,7 @@
        * 9. ANIMATION LOOP (60FPS)
        * ========================================================= */
       const clock = new THREE.Clock();
+      let smoothedTurnRate = 0; // Revisi 7: banking kamera dihaluskan, bukan mengikuti ayunan kasar
 
       function smoothstep(edge0, edge1, x) {
         const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
@@ -2853,19 +4168,57 @@
         const letterScale = 1.0 + p3 * 0.08;
         letterCardMesh.scale.setScalar(letterScale);
 
-        if (autoSpin && scrollProgress < 0.03) {
+        const prevSmoothScroll = smoothScroll;
+        smoothScroll += (scrollProgress - smoothScroll) * Math.min(1, dt * (isMobile ? 3.2 : 6.0)); // Revisi 7: kamera mobile meluncur lebih pelan/halus
+        const scrollSpeed = Math.abs(scrollProgress - smoothScroll);
+
+        if (autoSpin) {
           userYaw += dt * 0.45;
-        } else if (scrollProgress > 0.03) {
-          userYaw *= 0.95;
-          userPitch *= 0.95;
         }
 
-        const prevSmoothScroll = smoothScroll;
-        smoothScroll += (scrollProgress - smoothScroll) * Math.min(1, dt * 6.0);
-        const scrollSpeed = Math.abs(scrollProgress - smoothScroll);
+        if (!isDragging) {
+          userYaw += yawVelocity;
+          userPitch += pitchVelocity;
+          yawVelocity *= 0.92;
+          pitchVelocity *= 0.92;
+        }
+
+        // When scrolling fast between stops, gently align back to front view
+        if (scrollSpeed > 0.0035) {
+          userYaw += (0 - userYaw) * Math.min(1, dt * 2.8);
+          userPitch += (0 - userPitch) * Math.min(1, dt * 2.8);
+          yawVelocity = 0;
+          pitchVelocity = 0;
+        }
 
         const camBase = camSpline.getPointAt(smoothScroll);
         const lookBase = lookSpline.getPointAt(smoothScroll);
+
+        /* Revisi 7 (mobile saja): kamera mengikuti liku jalan.
+           Sebelumnya kamera melompat dari pos ke pos (x kamera: 0 -> +7 -> -5,5 -> +8,5 -> -6,8 ...),
+           itulah ayunan kanan-kiri yang tidak enak itu. Di mobile, posisi kamera
+           ditarik 55% ke garis tengah jalan dan titik pandangnya 45% ke titik
+           jalan di depan, jadi kamera berjalan menyusuri liku jalan yang
+           menyambung halus, bukan melompat antar pos. Desktop tidak diubah. */
+        let camPos = camBase;
+        let lookPos = lookBase;
+        /* Revisi 8: efek jalan mobile HANYA aktif setelah surat selesai dibuka.
+           Sebelumnya efek ini aktif juga di scroll 0, sehingga saat buka surat
+           kamera malah menoleh miring ke arah jalan dan surat tampak aneh/miring.
+           Sekarang: scroll 0-0,05 = kamera frontal lurus ke amplop/surat,
+           efek jalan masuk bertahap sampai penuh di scroll 0,14. */
+        const roadBlend = isMobile ? smoothstep(0.05, 0.14, smoothScroll) : 0;
+        if (roadBlend > 0) {
+          const roadPos = roadCurve.getPointAt(smoothScroll);
+          const roadAhead = roadCurve.getPointAt(Math.min(1, smoothScroll + 0.04));
+          camPos = new THREE.Vector3(
+            camBase.x + (roadPos.x - camBase.x) * (0.55 * roadBlend),
+            camBase.y,
+            camBase.z + (roadPos.z - camBase.z) * (0.55 * roadBlend)
+          );
+          lookPos = lookBase.clone().lerp(roadAhead, 0.45 * roadBlend);
+          lookPos.y = lookBase.y;
+        }
 
         const tAhead = Math.min(1, smoothScroll + 0.015);
         const tanNow = camSpline.getTangentAt(smoothScroll);
@@ -2873,14 +4226,29 @@
         const turnRate = tanNext.x - tanNow.x;
 
         const aspect = window.innerWidth / window.innerHeight;
-        const portraitBack = aspect < 0.75 ? (0.75 - aspect) * 7.2 + 1.45 : 0;
+        const portraitBackRaw = aspect < 0.75 ? (0.75 - aspect) * 7.2 + 1.45 : 0;
+        // Revisi 8: saat buka surat, jarak mundur mobile dikurangi agar surat tidak kecil di pinggir frame.
+        const portraitBack = isMobile ? portraitBackRaw * (0.45 + 0.55 * roadBlend) : portraitBackRaw;
 
-        const offset = new THREE.Vector3(0, userPitch * 2.2, portraitBack + userZoom);
-        offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), userYaw);
+        // True  Spherical Orbit Camera around lookBase (Scene Center)
+        const camOffset = camPos.clone().sub(lookPos);
+        const baseDist = camOffset.length();
+        const basePhi = Math.atan2(camOffset.x, camOffset.z);
+        const baseTheta = Math.asin(Math.max(-0.95, Math.min(0.95, camOffset.y / Math.max(0.001, baseDist))));
 
-        camera.position.copy(camBase).add(offset);
-        camera.lookAt(lookBase);
-        camera.rotation.z += -turnRate * 0.25;
+        const curPhi = basePhi + userYaw;
+        const curTheta = Math.max(-0.35, Math.min(0.95, baseTheta + userPitch));
+        const curDist = Math.max(2.0, baseDist + portraitBack + userZoom + (isMobile ? smoothstep(0.88, 1.0, smoothScroll) * 4.5 : 0)); // Revisi 12: kamera mobile mundur di Pos 7 supaya scene akhir tidak zoom-in dan teks tidak kepotong
+
+        const cosTheta = Math.cos(curTheta);
+        camera.position.set(
+          lookPos.x + curDist * Math.sin(curPhi) * cosTheta,
+          lookPos.y + curDist * Math.sin(curTheta),
+          lookPos.z + curDist * Math.cos(curPhi) * cosTheta
+        );
+        camera.lookAt(lookPos);
+        smoothedTurnRate += (turnRate - smoothedTurnRate) * Math.min(1, dt * 3.0);
+        camera.rotation.z += -smoothedTurnRate * (isMobile ? 0.12 * roadBlend : 0.25); // Revisi 8: banking mobile 0 saat buka surat
 
         const catT = Math.min(0.992, smoothScroll + 0.025);
         const catRoadPos = roadCurve.getPointAt(catT);
@@ -2888,7 +4256,47 @@
         const isScrollingNow = scrollSpeed > 0.0018;
 
         const trotBounce = isScrollingNow ? Math.abs(Math.sin(elapsed * 15)) * 0.14 : Math.sin(elapsed * 2.5) * 0.02;
-        guideCat.position.set(catRoadPos.x, catRoadPos.y + 0.14 + trotBounce, catRoadPos.z);
+        /* Revisi 10: kucing pemandu KEMBALI ke tengah jalan.
+           Koreksi dari yoka: yang digeser ke pinggir adalah objeknya, bukan
+           kucingnya. Jadi kucing kembali berjalan di garis tengah jalan,
+           dan objek-objek tengah di tiap pos yang digeser ke pinggir (lihat
+           posisi objek di tiap buildStop di bawah). Gedung lokasi tetap
+           pengecualian: pintunya terbuka saat kucing lewat. */
+        /* Revisi 8: kucing pemandu naik mengikuti permukaan gundukan taman.
+           Sebelumnya kucing berjalan di ketinggian jalan, sedangkan gundukan
+           tiap pos 0,32 lebih tinggi, jadi kucing tenggelam ke dalam gundukan
+           saat melintas pos. Sekarang ketinggiannya diambil dari permukaan
+           gundukan (rumus bola yang sama dengan gundukannya) bila lebih tinggi
+           dari jalan, jadi kucing mendaki gundukan dengan halus. */
+        let catGroundY = catRoadPos.y;
+        const gardenRadii = [0, 4.4, 4.2, 4.4, 5.2, 5.4, 4.2, 4.8];
+        const gardenTopY = [0, 0, 0, 0, 0.015, 0.015, 0, 0];
+        for (let gi = 1; gi <= 7; gi++) {
+          const Rg = gardenRadii[gi];
+          const dxg = catRoadPos.x - STOPS[gi].pos.x;
+          const dzg = catRoadPos.z - STOPS[gi].pos.z;
+          const d2g = dxg * dxg + dzg * dzg;
+          if (d2g < Rg * Rg) {
+            const moundY = STOPS[gi].pos.y + 0.32 + gardenTopY[gi] - Rg * 0.07 + 0.07 * Math.sqrt(Rg * Rg - d2g);
+            if (moundY > catGroundY) catGroundY = moundY;
+          }
+        }
+        // Revisi 9 tambahan: kucing naik anak tangga gedung saat masuk lewat pintu, turun lagi setelah lewat.
+        const distStep = Math.hypot(catRoadPos.x - STOPS[4].pos.x, catRoadPos.z - STOPS[4].pos.z);
+        const stepBlend = smoothstep(4.0, 2.0, distStep);
+        if (stepBlend > 0) {
+          const stepTopY = STOPS[4].pos.y + 0.64;
+          catGroundY = catGroundY + (stepTopY - catGroundY) * stepBlend;
+        }
+        guideCat.position.set(catRoadPos.x, catGroundY + 0.08 + trotBounce, catRoadPos.z);
+
+        // Revisi 9: pintu gedung lokasi terbuka saat kucing pemandu dekat, tertutup lagi setelah lewat.
+        if (buildingDoorPivot) {
+          const distDoor = Math.hypot(guideCat.position.x - STOPS[4].pos.x, guideCat.position.z - STOPS[4].pos.z);
+          const doorTarget = distDoor < 9.0 ? 1 : 0;
+          buildingDoorOpen += (doorTarget - buildingDoorOpen) * Math.min(1, dt * 3.0);
+          buildingDoorPivot.rotation.y = -buildingDoorOpen * 1.85;
+        }
 
         if (isScrollingNow) {
           const dirSign = (scrollProgress >= prevSmoothScroll) ? 1 : -1;
@@ -2898,7 +4306,6 @@
           guideCat.lookAt(camera.position.x, camera.position.y, camera.position.z);
         }
 
-        catSpeechBubble.lookAt(camera.position);
 
         animatedCats.forEach((cat) => {
           const u = cat.userData;
@@ -2971,15 +4378,18 @@
           const u = c.userData;
           u.groomHead.rotation.z = Math.sin(elapsed * 1.6 + u.phase) * 0.04;
           u.brideHead.rotation.z = -Math.sin(elapsed * 1.6 + u.phase) * 0.04;
-          u.groomLeftArm.rotation.z = Math.sin(elapsed * 3.0 + u.phase) * 0.15;
-          u.bouquet.position.y = 1.12 + Math.sin(elapsed * 2.4 + u.phase) * 0.03;
+          u.groomLeftArm.rotation.z = 0.10 + Math.sin(elapsed * 1.8 + u.phase) * 0.035;
+          if (u.groomRightArm) {
+            u.groomRightArm.rotation.z = -0.10 - Math.sin(elapsed * 1.8 + u.phase) * 0.035;
+          }
+          u.bouquet.position.y = 1.05 + Math.sin(elapsed * 2.4 + u.phase) * 0.03;
           u.centerHeart.rotation.y = elapsed * 1.8;
           u.centerHeart.position.y = 2.25 + Math.sin(elapsed * 2.8) * 0.07;
         });
 
         floatingRingsGroup.rotation.y = elapsed * 0.9;
         if (bouncingPin) {
-          bouncingPin.position.y = 2.05 + Math.abs(Math.sin(elapsed * 3.2)) * 0.32;
+          bouncingPin.position.y = 5.40 + Math.abs(Math.sin(elapsed * 3.2)) * 0.35;
           bouncingPin.rotation.y = elapsed * 1.2;
         }
 
@@ -3017,9 +4427,6 @@
         if (nearest !== activeStopIdx) {
           activeStopIdx = nearest;
           hudStopLabel.textContent = STOPS[nearest].name;
-        }
-        if (performance.now() > customBubbleLockUntil) {
-          updateCatSpeechBubble(STOP_CAT_MESSAGES[activeStopIdx]);
         }
 
         renderer.render(scene, camera);
